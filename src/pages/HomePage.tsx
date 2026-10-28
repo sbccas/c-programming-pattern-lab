@@ -28,7 +28,7 @@ const STEPS = [
 ];
 
 const HIGHLIGHTS = [
-  { icon: Cpu, title: `${PATTERNS.length} verified patterns`, text: 'From rectangles to inverted number triangles.' },
+  { icon: Cpu, title: `${PATTERNS.length} verified patterns`, text: 'From rectangles and triangles to pyramids and diamonds.' },
   { icon: Zap, title: 'Every step is real', text: 'Each highlight comes from an actual execution event.' },
   { icon: ShieldCheck, title: 'No login needed', text: 'Runs in your browser. Nothing is uploaded.' },
 ];

@@ -8,14 +8,16 @@
 
 <table>
   <tr>
-    <td width="68%"><img src="docs/screenshots/simulator-desktop.webp" alt="Simulator on desktop at step 12 of the number triangle: the condition j &lt;= i is highlighted, the variables show i = 2 and j = 1, and the dry-run trace runs below." /></td>
-    <td width="32%"><img src="docs/screenshots/simulator-mobile.webp" alt="Simulator on a phone at step 7 of the star triangle: 2 &lt;= 1 is FALSE, so the inner loop ends." /></td>
+    <td width="68%"><img src="docs/screenshots/diamond-desktop.webp" alt="Diamond of Stars on desktop at step 79 of 138: the upper half has printed four rows and the lower-half loop starts with i = 3. The code shows the upper-half and lower-half comments, and the variables panel shows i = 3, j = 1 and k = 5." /></td>
+    <td width="32%"><img src="docs/screenshots/pyramid-mobile.webp" alt="Solid Pyramid on a phone at step 50 of 97: the condition k &lt;= 2 * i - 1 is worked out as 1 &lt;= 5, true, and the variables tab shows i = 3, j = 2 and k = 1." /></td>
   </tr>
   <tr>
-    <td align="center"><sub>Desktop simulator: code, variables, output and dry-run trace stay in sync</sub></td>
-    <td align="center"><sub>Mobile-first: panel tabs and a thumb-friendly control dock</sub></td>
+    <td align="center"><sub>Diamond: two outer loops in a row. The lower half starts at i = 3, so the widest row is printed only once</sub></td>
+    <td align="center"><sub>Mobile-first: arithmetic limits worked out step by step (here 2 * i - 1 = 5)</sub></td>
   </tr>
 </table>
+
+<p align="center"><img src="docs/screenshots/library-pyramids.webp" width="860" alt="The pattern library filtered to Pyramids and diamonds, showing five lessons: Pyramid of Stars, Number Pyramid, Solid Pyramid (Odd Stars), Inverted Pyramid and Diamond of Stars, each with an output preview." /><br /><sub>12 patterns across 4 levels, from rectangles to pyramids and diamonds</sub></p>
 
 An interactive, browser-based lab that teaches **nested `for` loops** through classic C pattern programs. Students pick a pattern, read the C code, and run it **one operation at a time**. They watch the highlighted statement, the values of `i` and `j`, each condition being checked, the output growing character by character, and a dry-run table built from the same execution.
 

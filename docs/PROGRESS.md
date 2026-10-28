@@ -42,7 +42,7 @@ The user decided against a QR code; the link is shared directly.
 - Everything above is committed, pushed and **live**. There are no open bugs and no uncommitted work.
 - The user has been reviewing the app locally and then asking for commit + push. **Always ask before pushing.**
 - Suggested next tasks, none started:
-  1. Refresh the README screenshots so they show a pyramid or diamond lesson (§ 9).
+  1. ~~Refresh the README screenshots to show a pyramid or diamond~~ ✅ done: the diamond, the solid pyramid on a phone, and the library filtered to pyramids.
   2. Optionally add the live URL to the GitHub repository's "About → Website" field. The user does this on GitHub.
   3. Add more patterns from § 10. Hollow shapes first need `if-else` support in the engine.
 
@@ -242,7 +242,7 @@ The sources are in `docs/assets-src/`:
 |---|---|---|
 | `og-card.html` | `public/og-image.jpg` | Render at 1200×630 with headless Chrome (example below), then save as JPEG, quality about 86, **under 300 KB** |
 | `icon.html` | `public/icon-512.png` | Render at 512×512, then downscale with Pillow to `icon-192.png` and `apple-touch-icon.png` (180). Headless Chrome has a minimum window width, so small direct renders come out cropped |
-| `shoot-screenshots.mjs` | `docs/screenshots/*.png` | `node docs/assets-src/shoot-screenshots.mjs <outDir> https://c-programming-pattern-lab.vercel.app` drives headless Chrome over the DevTools protocol. Convert the results to WebP for the README. **Note:** the current README screenshots (taken at `adcb9a7`) were made before the pyramids existed. They are still accurate but show only triangle lessons; to include one, add a pyramid or diamond shot to the script |
+| `shoot-screenshots.mjs` | `docs/screenshots/*.png` | `node docs/assets-src/shoot-screenshots.mjs <outDir> https://c-programming-pattern-lab.vercel.app` drives headless Chrome over the DevTools protocol. It steps a lesson until a given explanation appears (for example `Start lower half loop`). It captures home, diamond (desktop), solid pyramid (phone), the library filtered to pyramids, and creator. Convert the results to WebP (quality about 86) into `docs/screenshots/` |
 
 Example render command (PowerShell, separate profile so the user's Chrome is untouched):
 
