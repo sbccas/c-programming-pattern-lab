@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://c-programming-pattern-lab.vercel.app/sitemap.xml

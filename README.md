@@ -2,11 +2,28 @@
 
 > See the code. Follow the loop. Understand the pattern.
 
+**▶ Live app: [c-programming-pattern-lab.vercel.app](https://c-programming-pattern-lab.vercel.app/)** · free, no login, works on phones
+
+[![C Programming Pattern Lab home page](docs/screenshots/home-desktop.webp)](https://c-programming-pattern-lab.vercel.app/)
+
+<table>
+  <tr>
+    <td width="68%"><img src="docs/screenshots/simulator-desktop.webp" alt="Simulator on desktop at step 12 of the number triangle: the condition j &lt;= i is highlighted, the variables show i = 2 and j = 1, and the dry-run trace runs below." /></td>
+    <td width="32%"><img src="docs/screenshots/simulator-mobile.webp" alt="Simulator on a phone at step 7 of the star triangle: 2 &lt;= 1 is FALSE, so the inner loop ends." /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Desktop simulator: code, variables, output and dry-run trace stay in sync</sub></td>
+    <td align="center"><sub>Mobile-first: panel tabs and a thumb-friendly control dock</sub></td>
+  </tr>
+</table>
+
 An interactive, browser-based lab that teaches **nested `for` loops** through classic C pattern programs. Students pick a pattern, read the C code, and run it **one operation at a time**. They watch the highlighted statement, the values of `i` and `j`, each condition being checked, the output growing character by character, and a dry-run table built from the same execution.
 
 Built for first-year **BCA, BSc IT and BSc Data Science** students, and for teachers demonstrating loop execution on a projector.
 
-**Idea, design and development:** [Hitesh Patel](https://github.com/contact2hitech): Educator, AI Systems Builder, and Founder of [Hi-Tech AI Solutions & Services](https://hi-tech-ai-solutions.github.io/). All creator and organisation details shown in the app live in [`src/branding.ts`](src/branding.ts).
+**Idea, design and development:** [Hitesh Patel](https://github.com/contact2hitech): Assistant Professor and Coordinator of BSc Data Science, and Founder of [Hi-Tech AI Solutions & Services](https://hi-tech-ai-solutions.github.io/). All creator and organisation details shown in the app live in [`src/branding.ts`](src/branding.ts).
+
+<p align="center"><img src="docs/screenshots/creator-desktop.webp" width="720" alt="The creator page for Hitesh Patel, Assistant Professor and Coordinator of BSc Data Science." /></p>
 
 The full specification is in [`C_Programming_Pattern_Lab_PRD.md`](C_Programming_Pattern_Lab_PRD.md).
 
@@ -15,6 +32,10 @@ The full specification is in [`C_Programming_Pattern_Lab_PRD.md`](C_Programming_
 ## Features (Version 1)
 
 - **Futuristic "space lab" design**: a dark theme with glass panels, neon highlights and an animated grid-and-glow background. All motion stops when the device asks for reduced motion. Fonts (Inter, Space Grotesk, JetBrains Mono) are bundled, so no font CDN is needed.
+- **Share previews and installable app**:
+  - Open Graph and X/Twitter cards give WhatsApp, Telegram, LinkedIn, Facebook and X a rich preview with a thumbnail, title and description. The image is [`public/og-image.jpg`](public/og-image.jpg): 1200×630, about 90 KB, under WhatsApp's 300 KB limit.
+  - A web app manifest and icons let students "Add to Home screen".
+  - Also included: JSON-LD structured data, `robots.txt` and `sitemap.xml`.
 - **Home page**: the product promise, a **live terminal** that replays the real star-triangle simulation, how it works (Understand → Visualize → Practise), featured patterns, and a creator spotlight.
 - **Creator page** (`/creator`): the faculty member behind the idea, the reasons for building the lab, and Hi-Tech AI Solutions & Services. "Designed & developed by" credits appear in the header and footer of every page.
 - **Pattern library** with output previews, category and difficulty filters, and "completed" badges (stored on this device).
