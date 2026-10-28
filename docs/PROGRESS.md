@@ -30,7 +30,7 @@
 | 2026-10-28 | **Deployed on Vercel** and smoke-tested live | `47f2995` |
 | 2026-10-28 | Social share previews (WhatsApp etc.), app icons and manifest, SEO, README screenshots | `adcb9a7` |
 | 2026-10-28 | Progress notes (this file) and image source files | `59c6f6d` |
-| 2026-10-28 | **Pyramids & diamonds**: 5 new patterns; engine supports two inner loops, sequential outer loops, arithmetic limits, comments | *(next commit)* |
+| 2026-10-28 | **Pyramids & diamonds**: 5 new patterns; engine supports two inner loops, sequential outer loops, arithmetic limits, comments | `0457d42` |
 
 The user decided against a QR code; the link is shared directly.
 
