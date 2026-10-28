@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8" />
+<style>
+  * { margin: 0; padding: 0; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; }
+  /* Full-bleed square (iOS / Android round the corners themselves). Glyph stays inside the 80% safe zone. */
+  body { background: radial-gradient(circle at 30% 20%, #142048, #080a18 70%); display: grid; place-items: center; }
+  svg { width: 62vw; height: 62vw; filter: drop-shadow(0 0 4vw rgba(34,227,255,.55)); }
+</style></head>
+<body>
+<svg viewBox="0 0 24 24"><defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#22e3ff"/><stop offset=".55" stop-color="#a78bfa"/><stop offset="1" stop-color="#f472d0"/></linearGradient></defs>
+<g fill="url(#g)"><rect x="3" y="2" width="5" height="5" rx="1.4"/><rect x="3" y="9.5" width="5" height="5" rx="1.4"/><rect x="10.5" y="9.5" width="5" height="5" rx="1.4"/><rect x="3" y="17" width="5" height="5" rx="1.4"/><rect x="10.5" y="17" width="5" height="5" rx="1.4"/><rect x="18" y="17" width="5" height="5" rx="1.4"/></g></svg>
+</body></html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: 'SG'; src: url('../../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2') format('woff2'); font-weight: 300 700; }
+  @font-face { font-family: 'IN'; src: url('../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+  @font-face { font-family: 'JB'; src: url('../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); font-weight: 100 800; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; font-variant-ligatures: none; font-feature-settings: 'liga' 0, 'calt' 0; }
+  body {
+    font-family: 'IN', sans-serif; color: #e2e8f0;
+    background:
+      radial-gradient(700px 420px at 0% 0%, rgba(34,227,255,.20), transparent 60%),
+      radial-gradient(640px 420px at 100% 10%, rgba(167,139,250,.24), transparent 60%),
+      radial-gradient(600px 380px at 60% 120%, rgba(244,114,208,.18), transparent 60%),
+      #04050c;
+    position: relative;
+  }
+  .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(148,163,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,255,.08) 1px, transparent 1px);
+    background-size: 40px 40px; -webkit-mask-image: radial-gradient(ellipse at 40% 40%, black 20%, transparent 75%); }
+  .wrap { position: absolute; inset: 0; padding: 40px 60px 62px; display: grid; grid-template-columns: 1fr 430px; gap: 44px; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .mark { width: 54px; height: 54px; border-radius: 15px; padding: 2px; background: linear-gradient(135deg,#22e3ff,#a78bfa,#f472d0); box-shadow: 0 0 30px -4px rgba(34,227,255,.8); }
+  .mark > div { width: 100%; height: 100%; border-radius: 13px; background: #080a18; display: grid; place-items: center; }
+  .eyebrow { font-family: 'JB'; font-size: 17px; letter-spacing: .22em; text-transform: uppercase; color: #67e8f9; font-weight: 600; }
+  .sub { font-size: 16px; color: #94a3b8; margin-top: 3px; font-weight: 500; }
+  h1 { font-family: 'SG'; font-weight: 700; font-size: 74px; line-height: 1.0; letter-spacing: -.02em; color: #f8fafc; margin-top: 30px; }
+  .neon { background: linear-gradient(90deg,#22e3ff,#a78bfa 55%,#f472d0); -webkit-background-clip: text; color: transparent; }
+  .tag { font-family: 'SG'; font-size: 24.5px; font-weight: 500; color: #cffafe; margin-top: 20px; }
+  .chips { display: flex; gap: 10px; margin-top: 26px; flex-wrap: wrap; }
+  .chip { font-size: 17px; font-weight: 600; padding: 7px 15px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: #e2e8f0; }
+  .chip b { color: #a3f75b; }
+  .creator { display: flex; align-items: center; gap: 16px; margin-top: 34px; }
+  .avatar { width: 70px; height: 70px; border-radius: 50%; padding: 3px; background: conic-gradient(#22e3ff,#a78bfa,#f472d0,#22e3ff); flex-shrink: 0; }
+  .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; transform: scale(1.04); display: block; background: #080a18; }
+  .cname { font-family: 'SG'; font-size: 24px; font-weight: 700; color: #fff; }
+  .crole { font-size: 16px; color: #94a3b8; margin-top: 2px; }
+  .term { border-radius: 22px; padding: 2px; background: linear-gradient(140deg,#22e3ff,#a78bfa,#f472d0); box-shadow: 0 0 80px -18px rgba(167,139,250,.7); }
+  .term > div { border-radius: 20px; background: #080a18; overflow: hidden; }
+  .bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); }
+  .dots { display: flex; gap: 7px; } .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .file { font-family: 'JB'; font-size: 14px; color: #94a3b8; }
+  pre { font-family: 'JB'; font-size: 17px; line-height: 1.55; padding: 14px 20px; color: #cbd5e1; font-variant-ligatures: none; }
+  .hl { background: rgba(252,211,77,.22); color: #fef3c7; border-radius: 5px; padding: 0 3px; box-shadow: 0 0 0 1px #fcd34d, 0 0 16px -2px #fcd34d; }
+  .line { display: block; margin: 0 -20px; padding: 0 20px; }
+  .active { background: linear-gradient(90deg, rgba(34,227,255,.16), transparent); box-shadow: inset 4px 0 0 #22e3ff; }
+  .outrow { display: flex; gap: 14px; padding: 0 18px 18px; }
+  .vars { font-family: 'JB'; font-size: 15px; color: #94a3b8; display: grid; gap: 6px; align-content: start; padding-top: 4px; min-width: 92px; }
+  .vars b { color: #a5f3fc; font-size: 24px; }
+  .outbox { flex: 1; } .olabel { font-family: 'JB'; font-size: 12px; letter-spacing: .2em; color: #a3f75b; opacity: .85; margin-bottom: 6px; } .out { font-family: 'JB'; font-size: 19px; line-height: 1.5; color: #a3f75b; text-shadow: 0 0 10px rgba(163,247,91,.6); background: rgba(0,0,0,.5); border: 1px solid rgba(163,247,91,.18); border-radius: 14px; padding: 12px 16px; white-space: pre; }
+  .result { display: inline-block; font-family: 'JB'; font-size: 14px; font-weight: 700; color: #fda4af; background: rgba(244,63,94,.15); border: 1px solid rgba(251,113,133,.5); border-radius: 999px; padding: 3px 12px; margin: 0 18px 14px; }
+  .url { position: absolute; right: 64px; bottom: 20px; font-family: 'JB'; font-size: 17px; color: #67e8f9; letter-spacing: .02em; }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="wrap">
+    <div>
+      <div class="brand">
+        <div class="mark"><div>
+          <svg viewBox="0 0 24 24" width="32" height="32"><defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop stop-color="#22e3ff"/><stop offset=".55" stop-color="#a78bfa"/><stop offset="1" stop-color="#f472d0"/></linearGradient></defs>
+            <g fill="url(#g)"><rect x="4" y="5" width="4" height="4" rx="1.2"/><rect x="4" y="11" width="4" height="4" rx="1.2"/><rect x="10" y="11" width="4" height="4" rx="1.2"/><rect x="4" y="17" width="4" height="4" rx="1.2"/><rect x="10" y="17" width="4" height="4" rx="1.2"/><rect x="16" y="17" width="4" height="4" rx="1.2"/></g></svg>
+        </div></div>
+        <div>
+          <div class="eyebrow">Learn C in the age of AI</div>
+          <div class="sub">by Hi-Tech AI Solutions &amp; Services</div>
+        </div>
+      </div>
+      <h1>C Programming<br /><span class="neon">Pattern Lab</span></h1>
+      <div class="tag">See the code. Follow the loop.<br />Understand the pattern.</div>
+      <div class="chips">
+        <span class="chip">Nested <b>for</b> loops</span>
+        <span class="chip">Step-by-step simulator</span>
+        <span class="chip">Free · No login</span>
+      </div>
+      <div class="creator">
+        <div class="avatar"><img src="../../public/images/hitesh-patel-still.webp" alt="" /></div>
+        <div>
+          <div class="cname">Hitesh Patel</div>
+          <div class="crole">Assistant Professor &amp; Coordinator, BSc Data Science</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="term"><div>
+      <div class="bar"><span class="dots"><i style="background:#fb7185"></i><i style="background:#fcd34d"></i><i style="background:#a3e635"></i></span><span class="file">pattern.c · step 7/53</span></div>
+<pre><span class="line">for (i = 1; i &lt;= 4; i++)</span><span class="line">{</span><span class="line active">    for (j = 1; <span class="hl">j &lt;= i</span>; j++)</span><span class="line">    {</span><span class="line">        printf("* ");</span><span class="line">    }</span><span class="line">    printf("\n");</span><span class="line">}</span></pre>
+      <span class="result">2 &lt;= 1 → FALSE</span>
+      <div class="outrow">
+        <div class="vars"><span class="olabel" style="color:#67e8f9">STEP 7</span><span>i = <b>1</b></span><span>j = <b>2</b></span></div>
+        <div class="outbox"><div class="olabel">FINAL OUTPUT</div><div class="out">*
+* *
+* * *
+* * * *</div></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="url">c-programming-pattern-lab.vercel.app</div>
+</body>
+</html>

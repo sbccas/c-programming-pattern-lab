@@ -25,7 +25,7 @@ Built for first-year **BCA, BSc IT and BSc Data Science** students, and for teac
 
 <p align="center"><img src="docs/screenshots/creator-desktop.webp" width="720" alt="The creator page for Hitesh Patel, Assistant Professor and Coordinator of BSc Data Science." /></p>
 
-The full specification is in [`C_Programming_Pattern_Lab_PRD.md`](C_Programming_Pattern_Lab_PRD.md).
+The full specification is in [`C_Programming_Pattern_Lab_PRD.md`](C_Programming_Pattern_Lab_PRD.md). Project status, decisions and the workflow for future changes are in [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 ---
 
