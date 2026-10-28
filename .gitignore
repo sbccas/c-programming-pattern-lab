@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+
+# logs
+npm-debug.log*
+*.log
+
+# environment / secrets
+.env
+.env.*
+!.env.example
+
+# editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# deployment
+.vercel/

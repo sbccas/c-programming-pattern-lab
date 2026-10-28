@@ -1,0 +1,232 @@
+@import 'tailwindcss';
+
+/* Self-hosted fonts (bundled; no font CDN needed at runtime). */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Mono', Consolas, Menlo, monospace;
+
+  /* Extra-small phones and very large classroom screens. */
+  --breakpoint-xs: 22.5rem;
+  --breakpoint-3xl: 120rem;
+
+  /* "Space lab" palette */
+  --color-void: #04050c;
+  --color-deep: #080a18;
+  --color-neon-cyan: #22e3ff;
+  --color-neon-violet: #a78bfa;
+  --color-neon-pink: #f472d0;
+  --color-neon-lime: #a3f75b;
+
+  --animate-float-slow: float-slow 22s ease-in-out infinite;
+  --animate-float-slower: float-slow 30s ease-in-out infinite reverse;
+  --animate-spin-slow: spin 9s linear infinite;
+  --animate-shimmer: shimmer 3.2s linear infinite;
+  --animate-blink: blink 1.05s steps(1) infinite;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+    /* Scale the whole UI up on big classroom displays and projectors. */
+    font-size: 100%;
+  }
+  @media (min-width: 1536px) {
+    html {
+      font-size: 106.25%;
+    }
+  }
+  @media (min-width: 1920px) {
+    html {
+      font-size: 112.5%;
+    }
+  }
+  @media (min-width: 2560px) {
+    html {
+      font-size: 131.25%;
+    }
+  }
+  body {
+    @apply bg-void font-sans text-slate-300 antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-slate-50;
+  }
+  ::selection {
+    @apply bg-cyan-400/30 text-white;
+  }
+  /* Never merge `<=`, `++`, `!=` etc. into ligatures: students must see the real C characters. */
+  code,
+  pre,
+  kbd,
+  samp,
+  .font-mono {
+    font-variant-ligatures: none;
+    font-feature-settings:
+      'liga' 0,
+      'calt' 0;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-cyan-300;
+  }
+  select option {
+    @apply bg-deep text-slate-100;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ---------- Reusable building blocks ---------- */
+
+@utility glass {
+  @apply rounded-2xl border border-white/10 bg-white/[0.035] shadow-[0_20px_60px_-25px_rgba(0,0,0,0.8)] backdrop-blur-xl;
+}
+@utility card {
+  @apply glass;
+}
+@utility glass-strong {
+  @apply rounded-2xl border border-white/12 bg-[#0b0e1f]/85 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur-xl;
+}
+@utility neon-text {
+  @apply bg-gradient-to-r from-neon-cyan via-neon-violet to-neon-pink bg-clip-text text-transparent;
+}
+@utility neon-border {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--color-deep), var(--color-deep)) padding-box,
+    linear-gradient(120deg, var(--color-neon-cyan), var(--color-neon-violet), var(--color-neon-pink)) border-box;
+}
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all duration-200 select-none disabled:cursor-not-allowed disabled:opacity-40;
+}
+@utility btn-primary {
+  @apply btn bg-gradient-to-r from-neon-cyan to-neon-violet font-bold text-slate-950 shadow-[0_0_24px_-6px_rgba(34,227,255,0.7)] hover:shadow-[0_0_32px_-4px_rgba(167,139,250,0.85)] hover:brightness-110 active:scale-[0.98] disabled:shadow-none disabled:hover:brightness-100;
+}
+@utility btn-secondary {
+  @apply btn border border-white/15 bg-white/[0.06] text-slate-100 hover:border-cyan-300/50 hover:bg-white/10 active:scale-[0.98] disabled:hover:border-white/15 disabled:hover:bg-white/[0.06];
+}
+@utility btn-ghost {
+  @apply btn text-slate-300 hover:bg-white/[0.07] hover:text-white;
+}
+@utility panel-title {
+  @apply font-mono text-[11px] font-semibold tracking-[0.2em] text-cyan-300/90 uppercase;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1;
+}
+@utility container-page {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 3xl:max-w-[110rem];
+}
+@utility safe-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+/* ---------- Animated "space lab" backdrop ---------- */
+
+.lab-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgb(34 227 255 / 0.12), transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, rgb(167 139 250 / 0.14), transparent 60%),
+    radial-gradient(900px 700px at 50% 120%, rgb(244 114 208 / 0.1), transparent 60%),
+    var(--color-void);
+}
+.lab-backdrop::before {
+  /* Perspective grid that fades out towards the edges. */
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background-image:
+    linear-gradient(rgb(148 163 255 / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(148 163 255 / 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black 10%, transparent 60%);
+}
+.lab-orb {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.55;
+}
+.lab-stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgb(255 255 255 / 0.7), transparent),
+    radial-gradient(1px 1px at 70% 80%, rgb(255 255 255 / 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 40% 70%, rgb(165 243 252 / 0.7), transparent),
+    radial-gradient(1px 1px at 85% 20%, rgb(255 255 255 / 0.6), transparent),
+    radial-gradient(1px 1px at 10% 85%, rgb(196 181 253 / 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 60% 15%, rgb(255 255 255 / 0.5), transparent);
+  background-size: 420px 420px;
+  opacity: 0.6;
+}
+
+/* Glow for the code part that is executing right now. */
+.exec-glow {
+  box-shadow:
+    0 0 0 1px currentColor,
+    0 0 18px -2px currentColor;
+}
+
+/* Terminal text glow + faint scanlines. */
+.terminal-glow {
+  text-shadow: 0 0 8px rgb(163 247 91 / 0.55);
+}
+.scanlines {
+  background-image: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, 6%, 0) scale(1.08);
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    background-color: rgb(34 227 255 / 0.45);
+    transform: scale(1.06);
+  }
+}
+.animate-pop {
+  animation: pop-in 0.7s ease-out;
+}
