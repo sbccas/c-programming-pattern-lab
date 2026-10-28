@@ -1,4 +1,4 @@
-import { linesToOutput, lit, nestedLoopProgram, param } from './builders';
+import { linesToOutput, lit, nestedLoopProgram, param, standardCards } from './builders';
 import type { PatternDefinition } from './types';
 
 export const square: PatternDefinition = {
@@ -23,7 +23,7 @@ export const square: PatternDefinition = {
     { format: '* ', args: [] },
   ),
   expectedOutput: linesToOutput(['* * * * ', '* * * * ', '* * * * ', '* * * * ']),
-  explain: ({ size = 4 }) => ({
+  explain: ({ size = 4 }) => standardCards({
     outerLoop: `for (i = 1; i <= ${size}; i++) runs ${size} time${size === 1 ? '' : 's'}, giving ${size} row${size === 1 ? '' : 's'}.`,
     innerLoop: `for (j = 1; j <= ${size}; j++) also runs ${size} time${size === 1 ? '' : 's'} on every row, so each row has ${size} star${size === 1 ? '' : 's'}. Same height and width makes a square.`,
     output: 'printf("* "); prints one star and a space on the current line.',

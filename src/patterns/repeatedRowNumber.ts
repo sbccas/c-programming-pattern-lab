@@ -1,4 +1,4 @@
-import { linesToOutput, lit, nestedLoopProgram, param, ref } from './builders';
+import { linesToOutput, lit, nestedLoopProgram, param, ref, standardCards } from './builders';
 import type { PatternDefinition } from './types';
 
 export const repeatedRowNumber: PatternDefinition = {
@@ -23,7 +23,7 @@ export const repeatedRowNumber: PatternDefinition = {
     { format: '%d ', args: ['i'] },
   ),
   expectedOutput: linesToOutput(['1 ', '2 2 ', '3 3 3 ', '4 4 4 4 ']),
-  explain: ({ rows = 4 }) => ({
+  explain: ({ rows = 4 }) => standardCards({
     outerLoop: `for (i = 1; i <= ${rows}; i++) runs ${rows} time${rows === 1 ? '' : 's'}. The value of i is both the row number and the number that gets printed.`,
     innerLoop:
       'for (j = 1; j <= i; j++) uses the current value of i as its limit. When i is 3, j goes 1, 2, 3 — three passes — so three numbers are printed.',

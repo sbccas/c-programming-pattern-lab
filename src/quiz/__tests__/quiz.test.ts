@@ -18,12 +18,17 @@ function engineAnswer(q: QuizQuestion): string {
       return rows[v.row - 1]!;
     case 'total-symbols':
       return String(sim.states[sim.states.length - 1]!.symbolsPrinted);
+    case 'row-count':
+      return String(rows.length);
     case 'inner-iterations': {
       const outerTrue = sim.events.filter((e) => e.type === 'CONDITION_CHECK' && e.loop === 'outer' && e.result);
       const start = outerTrue[v.row - 1]!.index;
       const end = outerTrue[v.row]?.index ?? sim.events.length;
       return String(
-        sim.events.slice(start, end).filter((e) => e.type === 'CONDITION_CHECK' && e.loop === 'inner' && e.result).length,
+        sim.events
+          .slice(start, end)
+          .filter((e) => e.type === 'CONDITION_CHECK' && e.loop === 'inner' && e.result && (!v.loopId || e.loopId === v.loopId))
+          .length,
       );
     }
   }

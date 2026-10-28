@@ -5,12 +5,13 @@ import { ABSOLUTE_PARAM_MAX } from '../engine/validateParams';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 
 const SUPPORTED = [
-  ['Variables', 'int i, j; — declared at the top of main(), with no starting value'],
-  ['Loops', 'for loops, one inside another (an outer loop and an inner loop)'],
-  ['Loop start', 'i = <number>, j = <number>'],
-  ['Conditions', '<=, <, >= and > comparing a loop variable with a number or with i'],
-  ['Updates', 'i++, i--, j++, j--'],
-  ['Printing', 'printf("* "); printf("%d ", i); printf("%d ", j); printf("\\n");'],
+  ['Variables', 'int i, j; or int i, j, k; — declared at the top of main(), with no starting value'],
+  ['Loops', 'for loops: an outer loop with one or two inner loops; two outer loops one after another (diamond)'],
+  ['Loop start', 'i = <number>, j = 1, k = 1'],
+  ['Conditions', '<=, <, >= and > comparing a loop variable with a number, with i, or with + - * arithmetic such as 4 - i and 2 * i - 1'],
+  ['Updates', 'i++, i--, j++, k++'],
+  ['Printing', 'printf("* "); printf("*"); printf(" "); printf("%d ", i); printf("%d ", j); printf("%d ", k); printf("\\n");'],
+  ['Comments', '// one-line comments (shown, never executed)'],
   ['End', 'return 0;'],
 ];
 
@@ -99,7 +100,7 @@ export function AboutPage() {
           <li>Only the programs in the pattern library can be simulated; their code cannot be edited.</li>
           <li>Settings such as the number of rows are limited to {ABSOLUTE_PARAM_MAX} so the dry-run table stays readable (a few lessons use 9).</li>
           <li>As a safety limit, a simulation stops after {MAX_EVENTS.toLocaleString()} steps (no included pattern comes close).</li>
-          <li>Other C topics (while, if-else, arrays, functions) and more advanced patterns such as pyramids are planned for later versions.</li>
+          <li>Other C topics (while, if-else, arrays, functions) and patterns that need them, such as hollow shapes, are planned for later versions.</li>
         </ul>
       </section>
 

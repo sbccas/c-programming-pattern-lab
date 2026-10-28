@@ -1,4 +1,4 @@
-import { linesToOutput, lit, nestedLoopProgram, param } from './builders';
+import { linesToOutput, lit, nestedLoopProgram, param, standardCards } from './builders';
 import type { PatternDefinition } from './types';
 
 export const rectangle: PatternDefinition = {
@@ -27,7 +27,7 @@ export const rectangle: PatternDefinition = {
     { format: '* ', args: [] },
   ),
   expectedOutput: linesToOutput(['* * * * ', '* * * * ', '* * * * ']),
-  explain: ({ rows = 3, columns = 4 }) => ({
+  explain: ({ rows = 3, columns = 4 }) => standardCards({
     outerLoop: `for (i = 1; i <= ${rows}; i++) runs ${rows} time${rows === 1 ? '' : 's'}: i takes the values 1 to ${rows}. In this lesson each pass of the outer loop produces one row.`,
     innerLoop: `for (j = 1; j <= ${columns}; j++) runs ${columns} time${columns === 1 ? '' : 's'} on every row. Its limit is a fixed number, so every row gets the same number of stars. Each time a new row begins, execution reaches the inner loop again and j starts again from 1.`,
     output: 'printf("* "); prints one star followed by a space. It does not move to a new line, so the stars of a row appear side by side.',

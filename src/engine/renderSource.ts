@@ -1,4 +1,5 @@
 import type {
+  ArithmeticOp,
   CodePartKind,
   Expr,
   ParamValues,
@@ -16,21 +17,59 @@ export const loopPartId = (loopId: string, part: 'init' | 'condition' | 'update'
 export const DECLARE_PART_ID = 'declare';
 export const RETURN_PART_ID = 'return';
 
-/** Display an expression as C source. Parameters appear as their current number. */
-export function exprToSource(expr: Expr, params: ParamValues): string {
+const PRECEDENCE: Record<ArithmeticOp, number> = { '+': 1, '-': 1, '*': 2 };
+
+/** True when the expression reads a loop variable (so it cannot be shown as a fixed number). */
+export function usesVariable(expr: Expr): boolean {
+  return expr.kind === 'var' || (expr.kind === 'binary' && (usesVariable(expr.left) || usesVariable(expr.right)));
+}
+
+export function applyArithmetic(op: ArithmeticOp, a: number, b: number): number {
+  switch (op) {
+    case '+':
+      return a + b;
+    case '-':
+      return a - b;
+    case '*':
+      return a * b;
+  }
+}
+
+/** Value of an expression that uses only literals and parameters. */
+function constantValue(expr: Expr, params: ParamValues): number {
   switch (expr.kind) {
     case 'literal':
-      return String(expr.value);
-    case 'var':
-      return expr.name;
+      return expr.value;
     case 'param': {
       const value = params[expr.name];
-      if (value === undefined) {
-        throw new Error(`Missing value for parameter "${expr.name}".`);
-      }
-      return String(value);
+      if (value === undefined) throw new Error(`Missing value for parameter "${expr.name}".`);
+      return value;
     }
+    case 'var':
+      throw new Error(`"${expr.name}" is a variable, not a constant.`);
+    case 'binary':
+      return applyArithmetic(expr.op, constantValue(expr.left, params), constantValue(expr.right, params));
   }
+}
+
+/**
+ * Display an expression as C source. Parameters appear as their current number,
+ * and any part without variables is shown as its value: with 4 rows,
+ * `rows - 1` is shown as `3` and `rows - i` as `4 - i`.
+ */
+export function exprToSource(expr: Expr, params: ParamValues): string {
+  if (!usesVariable(expr)) return String(constantValue(expr, params));
+  if (expr.kind === 'var') return expr.name;
+  if (expr.kind !== 'binary') return String(constantValue(expr, params));
+  const wrap = (child: Expr, isRight: boolean) => {
+    const text = exprToSource(child, params);
+    if (child.kind !== 'binary' || !usesVariable(child)) return text;
+    const childP = PRECEDENCE[child.op];
+    const parentP = PRECEDENCE[expr.op];
+    const needs = childP < parentP || (isRight && childP === parentP && expr.op === '-');
+    return needs ? `(${text})` : text;
+  };
+  return `${wrap(expr.left, false)} ${expr.op} ${wrap(expr.right, true)}`;
 }
 
 /** Escape runtime text back into a C string literal body (e.g. newline → `\n`). */
@@ -62,6 +101,7 @@ export function renderSource(program: PatternProgram, params: ParamValues): Rend
     const number = lines.length + 1;
     for (const seg of segments) {
       if (seg.partId) {
+        if (seg.partId in partLines) throw new Error(`Duplicate code part id "${seg.partId}".`);
         partLines[seg.partId] = number;
         partText[seg.partId] = seg.text;
       }
@@ -73,8 +113,12 @@ export function renderSource(program: PatternProgram, params: ParamValues): Rend
 
   const renderStatements = (statements: readonly Statement[], depth: number) => {
     const pad = INDENT.repeat(depth);
-    for (const stmt of statements) {
-      if (stmt.kind === 'for') {
+    statements.forEach((stmt, index) => {
+      if (stmt.kind === 'comment') {
+        // A comment that starts a new section (not the first statement) gets a blank line before it.
+        if (index > 0) push([plain('')]);
+        push([plain(pad), { text: `// ${stmt.text}`, isComment: true }]);
+      } else if (stmt.kind === 'for') {
         const v = stmt.variable;
         push([
           plain(`${pad}for (`),
@@ -96,7 +140,7 @@ export function renderSource(program: PatternProgram, params: ParamValues): Rend
         const kind: CodePartKind = isNewlinePrintf(stmt.format, stmt.args) ? 'newline' : 'output';
         push([plain(pad), part(printfToSource(stmt.format, stmt.args), stmt.id, kind)]);
       }
-    }
+    });
   };
 
   push([plain('#include <stdio.h>')]);

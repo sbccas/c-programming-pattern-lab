@@ -25,11 +25,16 @@ export type ParamValues = Readonly<Record<string, number>>;
  * - `param`: a lesson parameter (e.g. number of rows). It is displayed in the
  *   C source as the plain number currently chosen, e.g. `i <= 4`.
  * - `var`: the current value of a loop variable, e.g. the `i` in `j <= i`.
+ * - `binary`: simple integer arithmetic, e.g. `4 - i` or `2 * i - 1`.
+ *   A sub-expression with no variables is shown as its value (`4 - 1` → `3`).
  */
 export type Expr =
   | { kind: 'literal'; value: number }
   | { kind: 'param'; name: string }
-  | { kind: 'var'; name: VarName };
+  | { kind: 'var'; name: VarName }
+  | { kind: 'binary'; op: ArithmeticOp; left: Expr; right: Expr };
+
+export type ArithmeticOp = '+' | '-' | '*';
 
 export type ComparisonOp = '<=' | '<' | '>=' | '>';
 
@@ -47,9 +52,14 @@ export type LoopRole = 'outer' | 'inner';
 
 export interface ForLoopStatement {
   kind: 'for';
-  /** Stable id used to build code-part ids such as `outer.condition`. */
+  /** Stable id used to build code-part ids such as `outer.condition`. Must be unique. */
   id: string;
   role: LoopRole;
+  /**
+   * Short name used in explanations, e.g. `spaces` → "the spaces loop".
+   * Defaults to the role ("outer" / "inner").
+   */
+  label?: string;
   variable: VarName;
   init: Expr;
   condition: Condition;
@@ -69,7 +79,13 @@ export interface PrintfStatement {
   args: VarName[];
 }
 
-export type Statement = ForLoopStatement | PrintfStatement;
+/** A `// comment` line. Shown in the code, never executed (produces no event). */
+export interface CommentStatement {
+  kind: 'comment';
+  text: string;
+}
+
+export type Statement = ForLoopStatement | PrintfStatement | CommentStatement;
 
 /** The body of `main()` for a supported pattern program. */
 export interface PatternProgram {
@@ -90,6 +106,8 @@ export interface SourceSegment {
   /** Present when this segment can be highlighted as the executing part. */
   partId?: string;
   partKind?: CodePartKind;
+  /** True for `// comment` text (displayed dimmed). */
+  isComment?: boolean;
 }
 
 export interface SourceLine {
@@ -131,8 +149,12 @@ interface BaseEvent {
   line: number;
   /** Source text of the executing part, e.g. `j <= i` or `printf("* ");`. */
   code: string;
-  /** Which loop the event belongs to, if any. */
+  /** Role of the loop the event belongs to (innermost enclosing loop), if any. */
   loop: LoopRole | null;
+  /** Id of that loop, e.g. `spaces` (null outside every loop). */
+  loopId: string | null;
+  /** Short name of that loop, e.g. `spaces` or `outer` (null outside every loop). */
+  loopLabel: string | null;
   varsBefore: VariableValues;
   varsAfter: VariableValues;
   /** Short beginner-friendly label, e.g. "Check inner condition". */
@@ -207,11 +229,11 @@ export interface SimulationState {
   output: string;
   /** Text appended by the current event ('' if none). */
   appended: string;
-  /** How many times the outer loop body has been entered so far. */
+  /** How many times an outer loop body has been entered so far (= rows started). */
   outerPass: number;
-  /** How many times the inner loop body has been entered in the current outer pass. */
+  /** How many times the current inner loop's body has run since that loop was entered. */
   innerPass: number;
-  /** Number of `printf` calls that produced visible symbols so far. */
+  /** Number of `printf` calls that printed a visible symbol so far (spaces-only prints are not counted). */
   symbolsPrinted: number;
   finished: boolean;
 }

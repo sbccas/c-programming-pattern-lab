@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { executePattern, outputRows } from '../../engine/executePattern';
 import { defaultParams } from '../../engine/validateParams';
 import { PATTERNS, getNeighbours, getPattern } from '..';
+import { cardCode } from '../cardCode';
 
 /** C programs copied verbatim from the PRD (section 10). */
 const PRD_SOURCES: Record<string, { params: Record<string, number>; source: string; output: string }> = {
@@ -132,8 +133,24 @@ describe('pattern library', () => {
         expect(pattern.objective).toBeTruthy();
         expect(pattern.goals.length).toBeGreaterThan(0);
         expect(pattern.quiz.length).toBeGreaterThan(0);
-        const explanation = pattern.explain(sim.params);
-        for (const text of Object.values(explanation)) expect(text.length).toBeGreaterThan(10);
+        // Explanation cards must have text, and their code must come from real parts of the program,
+        // at every allowed setting.
+        for (const spec of pattern.params) {
+          for (let v = spec.min; v <= spec.max; v++) {
+            const s = executePattern(pattern, { ...defaultParams(pattern.params), [spec.name]: v });
+            const cards = pattern.explain(s.params);
+            expect(cards.length).toBeGreaterThanOrEqual(3);
+            expect(new Set(cards.map((c) => c.title)).size).toBe(cards.length);
+            for (const card of cards) {
+              expect(card.text.length).toBeGreaterThan(10);
+              expect(cardCode(card, s.source.partText).length).toBeGreaterThan(3);
+            }
+          }
+        }
+        // Every declared variable has a role label when a pattern provides them.
+        if (pattern.variableRoles) {
+          for (const v of pattern.program.variables) expect(pattern.variableRoles[v], v).toBeTruthy();
+        }
       });
 
       it('every event points at a code part that exists on the stated line', () => {

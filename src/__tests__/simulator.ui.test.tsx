@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../app/routes';
 import { executePattern } from '../engine/executePattern';
-import { getPattern } from '../patterns';
+import { PATTERNS, getPattern } from '../patterns';
 
 function renderAt(path: string) {
   return render(
@@ -223,7 +223,7 @@ describe('navigation and pages', () => {
   it('library filters patterns by category and difficulty', async () => {
     const user = userEvent.setup();
     renderAt('/patterns');
-    expect(screen.getAllByRole('link', { name: /open lesson/i })).toHaveLength(7);
+    expect(screen.getAllByRole('link', { name: /open lesson/i })).toHaveLength(PATTERNS.length);
     await user.click(screen.getByRole('button', { name: 'Decreasing patterns' }));
     expect(screen.getAllByRole('link', { name: /open lesson/i })).toHaveLength(2);
     await user.click(screen.getByRole('button', { name: 'Beginner' }));

@@ -10,6 +10,7 @@ import { executePattern } from '../engine/executePattern';
 import type { ParamValues } from '../engine/types';
 import { defaultParams, validateParams } from '../engine/validateParams';
 import { getNeighbours, getPattern } from '../patterns';
+import { cardCode } from '../patterns/cardCode';
 import type { PatternDefinition } from '../patterns/types';
 import { useCorrectQuizAnswers } from '../utils/progress';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
@@ -137,10 +138,9 @@ function PatternLesson({ pattern }: { pattern: PatternDefinition }) {
           How the program works
         </h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <ExplanationCard title="Outer loop" code={`for (${src['outer.init']}; ${src['outer.condition']}; ${src['outer.update']})`} text={explanation.outerLoop} />
-          <ExplanationCard title="Inner loop" code={`for (${src['inner.init']}; ${src['inner.condition']}; ${src['inner.update']})`} text={explanation.innerLoop} />
-          <ExplanationCard title="Output statement" code={src.print ?? ''} text={explanation.output} />
-          <ExplanationCard title="Newline" code={src.newline ?? ''} text={explanation.newline} />
+          {explanation.map((card) => (
+            <ExplanationCard key={card.title} title={card.title} code={cardCode(card, src)} text={card.text} />
+          ))}
         </div>
         <p className="mt-3 text-sm text-slate-400">
           “Outer loop = rows, inner loop = what goes on each row” is the way of thinking used for these patterns. It is a
@@ -160,7 +160,12 @@ function PatternLesson({ pattern }: { pattern: PatternDefinition }) {
           <ParamControls specs={pattern.params} values={values} onChange={setValues} />
         </div>
         <div className="mt-4">
-          <SimulatorWorkspace key={`${pattern.id}:${paramKey}`} simulation={simulation} variables={pattern.program.variables} />
+          <SimulatorWorkspace
+            key={`${pattern.id}:${paramKey}`}
+            simulation={simulation}
+            variables={pattern.program.variables}
+            variableRoles={pattern.variableRoles}
+          />
         </div>
       </section>
 

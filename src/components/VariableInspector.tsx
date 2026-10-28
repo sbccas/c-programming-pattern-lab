@@ -3,12 +3,16 @@ import type { SimulationState, VarName } from '../engine/types';
 interface VariableInspectorProps {
   state: SimulationState;
   variables: readonly VarName[];
+  /** What each variable does; defaults to i = outer loop, j = inner loop. */
+  roles?: Readonly<Record<string, string>>;
 }
 
-const ROLE: Record<string, string> = { i: 'outer loop', j: 'inner loop' };
+const DEFAULT_ROLES: Record<string, string> = { i: 'outer loop', j: 'inner loop' };
+// Static class names so Tailwind can see them.
+const GRID_COLS: Record<number, string> = { 1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3' };
 
 /** Current values of the loop variables, and which operation changed them. */
-export function VariableInspector({ state, variables }: VariableInspectorProps) {
+export function VariableInspector({ state, variables, roles = DEFAULT_ROLES }: VariableInspectorProps) {
   const event = state.event;
   const changedVar =
     event && (event.type === 'INIT_VARIABLE' || event.type === 'INCREMENT' || event.type === 'DECREMENT') ? event.variable : null;
@@ -18,7 +22,7 @@ export function VariableInspector({ state, variables }: VariableInspectorProps) 
       <h3 id="variables-title" className="panel-title">
         Variables
       </h3>
-      <dl className="mt-3 grid grid-cols-2 gap-3">
+      <dl className={`mt-3 grid gap-2 sm:gap-3 ${GRID_COLS[variables.length] ?? 'grid-cols-2'}`}>
         {variables.map((name) => {
           const value = state.vars[name];
           const changed = name === changedVar;
@@ -31,9 +35,9 @@ export function VariableInspector({ state, variables }: VariableInspectorProps) 
                   : 'border-white/10 bg-white/[0.03]'
               }`}
             >
-              <dt className="flex items-baseline justify-between gap-2">
+              <dt className="flex flex-wrap items-baseline justify-between gap-x-2">
                 <span className="font-mono text-lg font-bold text-white">{name}</span>
-                <span className="text-[10px] tracking-wide text-slate-400 uppercase">{ROLE[name] ?? 'variable'}</span>
+                <span className="text-[10px] leading-tight tracking-wide text-slate-400 uppercase">{roles[name] ?? 'variable'}</span>
               </dt>
               <dd className="mt-1" data-testid={`var-${name}`}>
                 {value === null || value === undefined ? (
@@ -67,7 +71,7 @@ export function VariableInspector({ state, variables }: VariableInspectorProps) 
           </dd>
         </div>
         <div className="rounded-lg bg-white/[0.03] p-2 ring-1 ring-white/5">
-          <dt className="text-slate-400">Inner passes (this row)</dt>
+          <dt className="text-slate-400">Inner loop passes</dt>
           <dd className="font-mono text-lg font-semibold text-white" data-testid="inner-pass">
             {state.innerPass}
           </dd>

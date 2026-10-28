@@ -24,6 +24,8 @@ type TabId = (typeof TABS)[number]['id'];
 interface SimulatorWorkspaceProps {
   simulation: Simulation;
   variables: readonly string[];
+  /** What each variable does, e.g. `{ j: 'spaces loop' }`. */
+  variableRoles?: Readonly<Record<string, string>>;
 }
 
 const isTypingTarget = (target: EventTarget | null) =>
@@ -34,7 +36,7 @@ const isTypingTarget = (target: EventTarget | null) =>
  * The parent must key this component by pattern + parameters, so changing
  * either starts a fresh, paused simulation at step 0.
  */
-export function SimulatorWorkspace({ simulation, variables }: SimulatorWorkspaceProps) {
+export function SimulatorWorkspace({ simulation, variables, variableRoles }: SimulatorWorkspaceProps) {
   const [speed, setSpeed] = useStoredState('speed', DEFAULT_SPEED, isSpeedId);
   const [showSpaces, setShowSpaces] = useStoredState('show-spaces', false, isBoolean);
   const [showUpcoming, setShowUpcoming] = useStoredState('show-upcoming', false, isBoolean);
@@ -134,7 +136,7 @@ export function SimulatorWorkspace({ simulation, variables }: SimulatorWorkspace
         </div>
         <div className="space-y-4 lg:col-span-5 lg:block">
           <div {...panelProps('variables')}>
-            <VariableInspector state={state} variables={variables} />
+            <VariableInspector state={state} variables={variables} roles={variableRoles} />
           </div>
           <div {...panelProps('output')}>
             <OutputPanel state={state} showSpaces={showSpaces} onShowSpacesChange={setShowSpaces} />

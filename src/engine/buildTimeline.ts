@@ -1,9 +1,8 @@
-import { DECLARE_PART_ID, RETURN_PART_ID, exprToSource, isNewlinePrintf, loopPartId, printfToSource } from './renderSource';
+import { DECLARE_PART_ID, RETURN_PART_ID, applyArithmetic, exprToSource, isNewlinePrintf, loopPartId, printfToSource } from './renderSource';
 import type {
   ComparisonOp,
   Expr,
   ForLoopStatement,
-  LoopRole,
   ParamValues,
   PatternProgram,
   PrintfStatement,
@@ -19,7 +18,10 @@ export const MAX_EVENTS = 5000;
 
 /** Distributes `Omit` over each member of the event union. */
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
-type EventDraft = DistributiveOmit<SimulationEvent, 'index' | 'line' | 'code' | 'varsBefore' | 'varsAfter'>;
+type EventDraft = DistributiveOmit<
+  SimulationEvent,
+  'index' | 'line' | 'code' | 'varsBefore' | 'varsAfter' | 'loop' | 'loopId' | 'loopLabel'
+>;
 
 export class SimulationError extends Error {
   constructor(message: string) {
@@ -48,14 +50,17 @@ const OP_WORDS: Record<ComparisonOp, string> = {
   '>': 'greater than',
 };
 
-const loopName = (role: LoopRole) => (role === 'outer' ? 'outer loop' : 'inner loop');
+/** Short name of a loop, e.g. `spaces`; defaults to its role. */
+export const loopLabel = (loop: ForLoopStatement): string => loop.label ?? loop.role;
 
 /** Describe printed text for beginners, e.g. `"* "` → a star followed by a space. */
 function describePrinted(text: string): string {
   const visible = text.replace(/ /g, '');
   const spaces = text.length - visible.length;
+  if (visible === '') return spaces === 1 ? 'one space' : `${spaces} spaces`;
   const spaceWords = spaces === 0 ? '' : spaces === 1 ? ' followed by a space' : ` followed by ${spaces} spaces`;
   if (visible === '*') return `a star${spaceWords}`;
+  if (/^\*+$/.test(visible)) return `${visible.length} stars${spaceWords}`;
   return `"${visible}"${spaceWords}`;
 }
 
@@ -67,11 +72,13 @@ function describePrinted(text: string): string {
  *   2. evaluate the condition; if false, leave the loop;
  *   3. otherwise run the body, then the update, then go back to step 2.
  * An inner loop is a statement inside the outer body, so its initialisation
- * runs again every time the outer body reaches it.
+ * runs again every time the outer body reaches it. Statements in a body run
+ * in order, so a second inner loop starts only after the first has finished.
  *
  * Step policy: there is no separate "leave loop" event. A CONDITION_CHECK with
  * result `false` is the moment the loop ends; the next event is the statement
- * after the loop (or PROGRAM_END after the outer loop).
+ * after the loop (or PROGRAM_END after the last statement of main).
+ * Comments produce no events.
  */
 export function buildTimeline(
   program: PatternProgram,
@@ -80,6 +87,7 @@ export function buildTimeline(
 ): SimulationEvent[] {
   const events: SimulationEvent[] = [];
   const vars: Record<VarName, number | null> = Object.fromEntries(program.variables.map((v) => [v, null]));
+  const loopStack: ForLoopStatement[] = [];
 
   const readVar = (name: VarName): number => {
     if (!(name in vars)) {
@@ -103,6 +111,8 @@ export function buildTimeline(
         if (value === undefined) throw new SimulationError(`Missing value for parameter "${expr.name}".`);
         return value;
       }
+      case 'binary':
+        return applyArithmetic(expr.op, evalExpr(expr.left), evalExpr(expr.right));
     }
   };
 
@@ -115,15 +125,27 @@ export function buildTimeline(
     if (line === undefined || code === undefined) {
       throw new SimulationError(`Code part "${partId}" is missing from the rendered source.`);
     }
+    const current = loopStack[loopStack.length - 1];
     const varsBefore: VariableValues = { ...vars };
     mutate?.();
     const varsAfter: VariableValues = { ...vars };
-    events.push({ ...draft, index: events.length, line, code, varsBefore, varsAfter } as SimulationEvent);
+    events.push({
+      ...draft,
+      index: events.length,
+      line,
+      code,
+      loop: current?.role ?? null,
+      loopId: current?.id ?? null,
+      loopLabel: current ? loopLabel(current) : null,
+      varsBefore,
+      varsAfter,
+    } as SimulationEvent);
   };
 
   const runLoop = (loop: ForLoopStatement) => {
     const v = loop.variable;
-    const name = loopName(loop.role);
+    const label = loopLabel(loop);
+    const name = `${label} loop`;
     const initValue = evalExpr(loop.init);
     const isInner = loop.role === 'inner';
 
@@ -132,13 +154,12 @@ export function buildTimeline(
       {
         type: 'INIT_VARIABLE',
         partId: loopPartId(loop.id, 'init'),
-        loop: loop.role,
         variable: v,
         value: initValue,
-        label: isInner ? `Start inner loop: ${v} = ${initValue}` : `Start outer loop: ${v} = ${initValue}`,
+        label: `Start ${name}: ${v} = ${initValue}`,
         explanation: isInner
-          ? `Execution enters the inner loop, so ${v} is set to ${initValue}. The inner loop starts again from ${v} = ${initValue} every time the outer loop body reaches it.`
-          : `Execution enters the outer loop, so ${v} is set to ${initValue}. This initialisation happens only once.`,
+          ? `Execution enters the ${name}, so ${v} is set to ${initValue}. The ${name} starts again from ${v} = ${initValue} every time the outer loop body reaches it.`
+          : `Execution enters the ${name}, so ${v} is set to ${initValue}. This initialisation happens only once.`,
       },
       () => {
         vars[v] = initValue;
@@ -150,27 +171,29 @@ export function buildTimeline(
       const leftValue = readVar(left);
       const rightValue = evalExpr(right);
       const result = compare(leftValue, op, rightValue);
-      const expression = `${left} ${op} ${exprToSource(right, params)}`;
+      const rightSource = exprToSource(right, params);
+      const expression = `${left} ${op} ${rightSource}`;
       const substituted = `${leftValue} ${op} ${rightValue}`;
       const why = `${leftValue} is ${result ? '' : 'not '}${OP_WORDS[op]} ${rightValue}`;
+      // For arithmetic limits, show the worked value first: "here 4 - i = 3".
+      const worked = right.kind === 'binary' && rightSource !== String(rightValue) ? ` (here ${rightSource} = ${rightValue})` : '';
       const consequence = result
         ? `so the ${name} body runs${isInner ? '' : ' (a new row starts)'}.`
         : isInner
-          ? `so the inner loop ends. Execution continues with the statement after the inner loop.`
-          : `so the outer loop ends. Execution continues after the outer loop.`;
+          ? `so the ${name} ends. Execution continues with the statement after the ${name}.`
+          : `so the ${name} ends. Execution continues after the ${name}.`;
 
       emit(loopPartId(loop.id, 'condition'), {
         type: 'CONDITION_CHECK',
         partId: loopPartId(loop.id, 'condition'),
-        loop: loop.role,
         expression,
         substituted,
         leftValue,
         rightValue,
         op,
         result,
-        label: `Check ${name === 'outer loop' ? 'outer' : 'inner'} condition: ${result ? 'true' : 'false'}`,
-        explanation: `Check ${expression}: ${substituted} is ${result ? 'true' : 'false'} because ${why}, ${consequence}`,
+        label: `Check ${label} condition: ${result ? 'true' : 'false'}`,
+        explanation: `Check ${expression}${worked}: ${substituted} is ${result ? 'true' : 'false'} because ${why}, ${consequence}`,
       });
 
       if (!result) break;
@@ -184,7 +207,6 @@ export function buildTimeline(
         {
           type: loop.update === '++' ? 'INCREMENT' : 'DECREMENT',
           partId: loopPartId(loop.id, 'update'),
-          loop: loop.role,
           variable: v,
           from,
           to,
@@ -198,7 +220,7 @@ export function buildTimeline(
     }
   };
 
-  const runPrintf = (stmt: PrintfStatement, enclosingLoop: LoopRole | null) => {
+  const runPrintf = (stmt: PrintfStatement) => {
     let argIndex = 0;
     const text = stmt.format.replace(/%d/g, () => {
       const arg = stmt.args[argIndex++];
@@ -214,7 +236,6 @@ export function buildTimeline(
       emit(stmt.id, {
         type: 'NEWLINE',
         partId: stmt.id,
-        loop: enclosingLoop,
         text: '\n',
         label: 'Print newline',
         explanation: `${shownCode} prints a newline character, so the cursor moves to the start of the next line. This row of output is complete.`,
@@ -225,26 +246,25 @@ export function buildTimeline(
       throw new SimulationError('A printf may print either symbols or a single newline, not both.');
     }
     const usesVar = stmt.args.length > 0 ? ` The value of ${stmt.args.join(', ')} is ${stmt.args.map((a) => readVar(a)).join(', ')}.` : '';
+    const purpose = text.trim() === '' ? ' Spaces are invisible, but they push the next symbol to the right.' : '';
     emit(stmt.id, {
       type: 'OUTPUT',
       partId: stmt.id,
-      loop: enclosingLoop,
       text,
       label: `Print "${text}"`,
-      explanation: `${shownCode} prints ${describePrinted(text)}.${usesVar} No newline is printed, so the cursor stays on the same line.`,
+      explanation: `${shownCode} prints ${describePrinted(text)}.${usesVar}${purpose} No newline is printed, so the cursor stays on the same line.`,
     });
   };
 
-  // Track the innermost loop that encloses each statement (for event context).
-  const loopStack: LoopRole[] = [];
   const runStatements = (statements: readonly Statement[]) => {
     for (const stmt of statements) {
+      if (stmt.kind === 'comment') continue;
       if (stmt.kind === 'for') {
-        loopStack.push(stmt.role);
+        loopStack.push(stmt);
         runLoop(stmt);
         loopStack.pop();
       } else {
-        runPrintf(stmt, loopStack[loopStack.length - 1] ?? null);
+        runPrintf(stmt);
       }
     }
   };
@@ -260,10 +280,9 @@ export function buildTimeline(
   emit(RETURN_PART_ID, {
     type: 'PROGRAM_END',
     partId: RETURN_PART_ID,
-    loop: null,
     returnValue: 0,
     label: 'Program ends: return 0',
-    explanation: 'The outer loop has finished, so main() reaches return 0; and the program ends successfully.',
+    explanation: 'All the loops have finished, so main() reaches return 0; and the program ends successfully.',
   });
 
   return events;

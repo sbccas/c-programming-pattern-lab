@@ -42,7 +42,8 @@ export function applyEvent(state: SimulationState, event: SimulationEvent): Simu
     case 'OUTPUT':
       output += event.text;
       appended = event.text;
-      symbolsPrinted += 1;
+      // Count printf calls that print a visible symbol; pure spacing does not count.
+      if (event.text.trim() !== '') symbolsPrinted += 1;
       break;
     case 'NEWLINE':
       output += event.text;

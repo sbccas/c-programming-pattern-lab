@@ -73,8 +73,15 @@ The full specification is in [`C_Programming_Pattern_Lab_PRD.md`](C_Programming_
 | 5 | Number Triangle | 2 · Easy | rows 1–9 | `1` / `1 2` / `1 2 3` / `1 2 3 4` |
 | 6 | Inverted Triangle of Stars | 3 · Moderate | rows 1–10 | 4, 3, 2, 1 stars |
 | 7 | Decreasing Number Triangle | 3 · Moderate | rows 1–9 | `1 2 3 4` / `1 2 3` / `1 2` / `1` |
+| 8 | Pyramid of Stars | 4 · Moderate | rows 1–10 | `   *` / `  * *` / ` * * *` / `* * * *` |
+| 9 | Number Pyramid | 4 · Moderate | rows 1–9 | `   1` / `  1 2` / ` 1 2 3` / `1 2 3 4` |
+| 10 | Solid Pyramid (Odd Stars) | 4 · Challenging | rows 1–10 | `   *` / `  ***` / ` *****` / `*******` |
+| 11 | Inverted Pyramid | 4 · Challenging | rows 1–10 | `* * * *` / ` * * *` / `  * *` / `   *` |
+| 12 | Diamond of Stars | 4 · Challenging | upper-half rows 1–9 | pyramid + inverted pyramid, 7 rows |
 
-Patterns 1–6 are the PRD's initial library. Pattern 7 is the "decreasing number triangle" from its expansion list. The C source of the rectangle, star triangle, number triangle and inverted triangle is tested **character for character** against the PRD.
+Patterns 1–6 are the PRD's initial library. Pattern 7 is the "decreasing number triangle" from its expansion list. Patterns 8–12 ("Pyramids & diamonds") come from the PRD's expansion candidates:
+- the pyramids use **two inner loops** (spaces, then symbols) with arithmetic limits such as `j <= 4 - i` and `k <= 2 * i - 1`;
+- the diamond uses **two outer loops in sequence**. The C source of the rectangle, star triangle, number triangle and inverted triangle is tested **character for character** against the PRD.
 
 ---
 
@@ -103,11 +110,20 @@ useSimulation(position)  →  every panel reads the same snapshot
 
 ### Supported C subset
 
-`int i, j;` · nested `for` loops · init `var = number` · conditions `<=`, `<`, `>=`, `>` against a number or `i` · updates `++` / `--` · `printf("* ")`, `printf("%d ", var)`, `printf("\n")` · `return 0;`
+- **Declarations:** `int i, j;` or `int i, j, k;`
+- **Loops:** nested `for` loops, with one or two inner loops per outer body, or several outer loops in sequence.
+- **Initialisation:** `var = expression`.
+- **Conditions:** `<=`, `<`, `>=` or `>` against an expression.
+- **Expressions:** numbers, lesson settings (shown as their value), loop variables, and `+`, `-`, `*`. Parts with no variable are shown as their value, so `rows - 1` appears as `3`.
+- **Updates:** `++` and `--`.
+- **Printing:** `printf("* ")`, `printf("*")`, `printf(" ")`, `printf("%d ", var)` and `printf("\n")`.
+- **Other:** `// comments` (shown, never executed) and `return 0;`
+
+Each code part has a unique id, and rendering fails if two parts share one, so a highlight can never be ambiguous.
 
 ### Adding a pattern
 
-1. Create `src/patterns/myPattern.ts` exporting a `PatternDefinition`. Build the program with `nestedLoopProgram(...)` from `builders.ts`, or write the `PatternProgram` tree directly.
+1. Create `src/patterns/myPattern.ts` exporting a `PatternDefinition`. Build the program with `nestedLoopProgram(...)` or `pyramidProgram(...)` / `pyramidLoop(...)` from `builders.ts`, or write the `PatternProgram` tree directly. Its `explain()` cards refer to loops and statements by id, so their code is copied from the rendered program.
 2. Write `expectedOutput` by hand for the default settings, including the trailing spaces.
 3. Add it to `PATTERNS` in `src/patterns/index.ts`.
 4. Run `npm test`. The generic tests check its output, loop order at every allowed setting, code-to-event mapping, and any quiz `verify` links automatically.
@@ -161,9 +177,15 @@ Then open http://localhost:5173.
 
 ### Tests
 
-159 automated tests:
+254 automated tests:
 
-- **Engine:** the exact PRD first-row event sequence; inner re-initialisation on every row; the outer update only after the inner loop and the newline; condition results; increments and decrements; event counts; termination. Every pattern is checked at **every allowed setting** for C loop order. Snapshots are compared with full replay, both forwards and backwards. Determinism, parameter validation and runaway-loop protection are also covered.
+- **Engine:**
+  - the exact PRD first-row event sequence, inner re-initialisation on every row, and the outer update only after the inner loop and the newline;
+  - condition results, increments and decrements, event counts and termination;
+  - the exact first-row order of a pyramid (spaces loop, then stars loop) and the diamond's lower half starting at `rows - 1`;
+  - expression rendering, including constant folding and brackets.
+
+  Every pattern, at **every allowed setting**, is checked against an **independent control-flow oracle**. The oracle works out from the program structure which code part C must run after each step, and every step in the timeline must match it. Snapshots are compared with full replay, both forwards and backwards. Determinism, parameter validation and runaway-loop protection are also covered.
 - **Patterns:** each pattern's engine output equals its hand-written expected output exactly. Every event points at real code on the stated line. PRD C sources match character for character.
 - **Quiz:** answers to output, row and count questions are recomputed with the simulator.
 - **UI:** stepping through all 53 steps forward and back, checking code highlight, variables, output, progress and dry-run row against the engine at each step. Also: Auto Run, Pause, Reset and speed (fake timers), timer cleanup on unmount, settings changes and validation, URL settings, prediction mode, quiz feedback, library filters, navigation, 404, and mobile panel tabs.

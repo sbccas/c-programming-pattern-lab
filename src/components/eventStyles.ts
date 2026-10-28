@@ -35,7 +35,7 @@ export function operationName(event: SimulationEvent): string {
     case 'INIT_VARIABLE':
       return `Initialise ${event.variable}`;
     case 'CONDITION_CHECK':
-      return event.loop === 'inner' ? 'Check inner condition' : 'Check outer condition';
+      return `Check ${event.loopLabel ?? event.loop ?? 'loop'} condition`;
     case 'INCREMENT':
       return `Increment ${event.variable}`;
     case 'DECREMENT':

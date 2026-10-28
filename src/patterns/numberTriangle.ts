@@ -1,4 +1,4 @@
-import { linesToOutput, lit, nestedLoopProgram, param, ref } from './builders';
+import { linesToOutput, lit, nestedLoopProgram, param, ref, standardCards } from './builders';
 import type { PatternDefinition } from './types';
 
 export const numberTriangle: PatternDefinition = {
@@ -23,7 +23,7 @@ export const numberTriangle: PatternDefinition = {
     { format: '%d ', args: ['j'] },
   ),
   expectedOutput: linesToOutput(['1 ', '1 2 ', '1 2 3 ', '1 2 3 4 ']),
-  explain: ({ rows = 4 }) => ({
+  explain: ({ rows = 4 }) => standardCards({
     outerLoop: `for (i = 1; i <= ${rows}; i++) runs ${rows} time${rows === 1 ? '' : 's'}, once per row.`,
     innerLoop: 'for (j = 1; j <= i; j++) runs i times. Because it is initialised again on every row, each row counts from 1.',
     output: 'printf("%d ", j); prints the current value of j followed by a space.',

@@ -61,6 +61,13 @@ export function CodePanel({ source, event }: CodePanelProps) {
                 <span className="whitespace-pre">
                   {line.segments.map((seg, k) => {
                     const active = seg.partId !== undefined && seg.partId === activePart;
+                    if (seg.isComment) {
+                      return (
+                        <span key={k} className="text-slate-500 italic">
+                          {seg.text}
+                        </span>
+                      );
+                    }
                     if (!active) return <span key={k}>{seg.text || ' '}</span>;
                     return (
                       <mark key={k} data-active-part={seg.partId} className={`exec-glow rounded px-0.5 font-semibold ${style?.code ?? ''}`}>

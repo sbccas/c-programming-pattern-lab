@@ -1,4 +1,4 @@
-import { linesToOutput, lit, nestedLoopProgram, param, ref } from './builders';
+import { linesToOutput, lit, nestedLoopProgram, param, ref, standardCards } from './builders';
 import type { PatternDefinition } from './types';
 
 export const starTriangle: PatternDefinition = {
@@ -23,7 +23,7 @@ export const starTriangle: PatternDefinition = {
     { format: '* ', args: [] },
   ),
   expectedOutput: linesToOutput(['* ', '* * ', '* * * ', '* * * * ']),
-  explain: ({ rows = 4 }) => ({
+  explain: ({ rows = 4 }) => standardCards({
     outerLoop: `for (i = 1; i <= ${rows}; i++) runs ${rows} time${rows === 1 ? '' : 's'}. On each pass, i is the row number: 1, 2, … ${rows}.`,
     innerLoop:
       'for (j = 1; j <= i; j++) runs i times. On row 1 it runs once, on row 2 twice, and so on. j starts again from 1 at the beginning of every row, because the inner for statement is reached again.',

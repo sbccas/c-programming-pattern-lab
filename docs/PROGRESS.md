@@ -29,6 +29,8 @@
 | 2026-10-28 | **First push to GitHub (sbccas)** | `47f2995` |
 | 2026-10-28 | **Deployed on Vercel** and smoke-tested live | `47f2995` |
 | 2026-10-28 | Social share previews (WhatsApp etc.), app icons and manifest, SEO, README screenshots | `adcb9a7` |
+| 2026-10-28 | Progress notes (this file) and image source files | `59c6f6d` |
+| 2026-10-28 | **Pyramids & diamonds**: 5 new patterns; engine supports two inner loops, sequential outer loops, arithmetic limits, comments | *(next commit)* |
 
 The user decided against a QR code; the link is shared directly.
 
@@ -54,7 +56,7 @@ The user decided against a QR code; the link is shared directly.
 - On phones the dry-run trace becomes a stacked list.
 - Prediction mode asks students to guess the next real event before it runs.
 
-**Patterns (7):**
+**Patterns (12):**
 - rectangle (rows, columns)
 - square (size)
 - repeated-row-number
@@ -62,6 +64,11 @@ The user decided against a QR code; the link is shared directly.
 - number-triangle
 - inverted-triangle
 - inverted-number-triangle
+- star-pyramid
+- number-pyramid
+- odd-star-pyramid
+- inverted-pyramid
+- diamond (two outer loops; `rows` = upper-half height)
 
 Limits are 1–10, or 1–9 for the number patterns.
 
@@ -96,6 +103,14 @@ Pattern definition (structured program, src/patterns/*.ts)
 - **Step policy:** step 0 means "declared, not initialised". After that, each step is one event: `INIT_VARIABLE`, `CONDITION_CHECK`, `OUTPUT`, `NEWLINE`, `INCREMENT`, `DECREMENT` or `PROGRAM_END`. A `CONDITION_CHECK` with result `false` is the moment a loop exits; there is no separate "leave loop" event.
 - **Previous Step** selects an earlier snapshot. **Auto Run** dispatches the same "advance one event" action on a timer, and the timer is cleaned up on pause, reset, step, settings change and unmount.
 - **Safety:** parameters are validated and capped at 10, and the engine stops at 5,000 events.
+- **Program shapes supported:**
+  - an outer loop with one or two inner loops (pyramids: spaces loop `j`, then symbols loop `k`);
+  - several outer loops in sequence (diamond);
+  - `// comments`;
+  - arithmetic limits (`+ - *`); constant parts are shown as their value, so `rows - 1` → `3`.
+
+  Loops carry a `label` (spaces, stars, upper half…) that is used in explanations and in the dry-run trace.
+- **Explanation cards:** `explain()` returns cards that point at a `loopId` or `partId`. `src/patterns/cardCode.ts` copies the code from the rendered program.
 
 | Area | Files |
 |---|---|
@@ -164,7 +179,7 @@ Facts about the creator come from the public GitHub profile and website, plus de
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 167 tests
+npm test           # 254 tests
 npm run lint
 npm run build      # → dist/
 npm run preview    # serve dist on http://localhost:4173
@@ -176,7 +191,8 @@ On Windows, a dev server started from a script can leave the Vite process runnin
 
 ## 8. Verification status
 
-- **Tests:** 167 passing across 6 files.
+- **Tests:** 254 passing across 6 files.
+  - Independent control-flow oracle: for every pattern at every allowed setting, the code part that runs after each step must match the one C would run, worked out from the program structure.
   - Engine: exact PRD first-row sequence, loop order for every pattern at every allowed setting, snapshot replay forwards and backwards.
   - Patterns: PRD C source matched character for character; expected outputs.
   - Quiz: answers recomputed by the engine.
@@ -224,7 +240,8 @@ After changing the image, WhatsApp may keep showing the old cached preview. Shar
 - Progress is stored in `localStorage` only.
 
 **Possible next steps (PRD "later versions" and expansion candidates):**
-- More patterns: alphabet triangle, centred pyramid, inverted pyramid, diamond (multiple inner loops), hollow square (`if-else`), number pyramids.
+- More patterns: alphabet triangle (`%c`), hollow square or hollow pyramid (needs `if-else` in the engine), Floyd's triangle, Pascal's triangle.
+- Pyramids, the inverted pyramid, the number pyramid and the diamond were added on 2026-10-28.
 - Each new pattern must pass the generic engine tests before it is published.
 - Other C topics: `while`, `do-while`, `if-else`, arrays, functions.
 - Gujarati language support.

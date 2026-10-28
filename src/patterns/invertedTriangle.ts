@@ -1,4 +1,4 @@
-import { linesToOutput, lit, nestedLoopProgram, param, ref } from './builders';
+import { linesToOutput, lit, nestedLoopProgram, param, ref, standardCards } from './builders';
 import type { PatternDefinition } from './types';
 
 export const invertedTriangle: PatternDefinition = {
@@ -23,7 +23,7 @@ export const invertedTriangle: PatternDefinition = {
     { format: '* ', args: [] },
   ),
   expectedOutput: linesToOutput(['* * * * ', '* * * ', '* * ', '* ']),
-  explain: ({ rows = 4 }) => ({
+  explain: ({ rows = 4 }) => standardCards({
     outerLoop: `for (i = ${rows}; i >= 1; i--) starts with i = ${rows} and decreases i by 1 after each row. It stops when i becomes 0, because 0 >= 1 is false.`,
     innerLoop: 'for (j = 1; j <= i; j++) runs i times. Since i gets smaller each row, the inner loop runs fewer times each row.',
     output: 'printf("* "); prints one star and a space.',

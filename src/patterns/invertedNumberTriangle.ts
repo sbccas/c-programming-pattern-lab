@@ -1,4 +1,4 @@
-import { linesToOutput, lit, nestedLoopProgram, param, ref } from './builders';
+import { linesToOutput, lit, nestedLoopProgram, param, ref, standardCards } from './builders';
 import type { PatternDefinition } from './types';
 
 export const invertedNumberTriangle: PatternDefinition = {
@@ -23,7 +23,7 @@ export const invertedNumberTriangle: PatternDefinition = {
     { format: '%d ', args: ['j'] },
   ),
   expectedOutput: linesToOutput(['1 2 3 4 ', '1 2 3 ', '1 2 ', '1 ']),
-  explain: ({ rows = 4 }) => ({
+  explain: ({ rows = 4 }) => standardCards({
     outerLoop: `for (i = ${rows}; i >= 1; i--) runs ${rows} time${rows === 1 ? '' : 's'}, with i = ${rows}, ${rows > 1 ? `${rows - 1}, … ` : ''}1.`,
     innerLoop: 'for (j = 1; j <= i; j++) counts j from 1 up to the current i, so each row is one number shorter than the row before.',
     output: 'printf("%d ", j); prints the current value of j and a space.',

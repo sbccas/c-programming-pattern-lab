@@ -28,14 +28,17 @@ export interface QuizOption {
  * Optional link to the simulator so tests can prove the answer is right.
  * - `final-output`: the correct option is the complete program output.
  * - `row`: the correct option is output row `row` (1-based, trailing space trimmed).
- * - `inner-iterations`: the correct option is how many times the inner body runs on outer pass `row`.
+ * - `inner-iterations`: the correct option is how many times an inner loop body runs on outer pass `row`
+ *   (only the loop `loopId` when given, e.g. the spaces loop of a pyramid).
  * - `total-symbols`: the correct option is the number of printf symbol calls in the whole run.
+ * - `row-count`: the correct option is the number of output rows.
  */
 export type QuizVerification =
   | { kind: 'final-output'; patternId: string; params: Record<string, number> }
   | { kind: 'row'; patternId: string; params: Record<string, number>; row: number }
-  | { kind: 'inner-iterations'; patternId: string; params: Record<string, number>; row: number }
-  | { kind: 'total-symbols'; patternId: string; params: Record<string, number> };
+  | { kind: 'inner-iterations'; patternId: string; params: Record<string, number>; row: number; loopId?: string }
+  | { kind: 'total-symbols'; patternId: string; params: Record<string, number> }
+  | { kind: 'row-count'; patternId: string; params: Record<string, number> };
 
 export interface QuizQuestion {
   id: string;
