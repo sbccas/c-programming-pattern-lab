@@ -3,7 +3,9 @@
 > Status file for future work sessions (Claude Code, ChatGPT, or a person).
 > Read this first, then `README.md` and `C_Programming_Pattern_Lab_PRD.md`.
 
-**Last updated:** 2026-10-28 · **Status:** ✅ Version 1 live in production
+**Last updated:** 2026-10-28 · **Status:** ✅ Version 1 + "Pyramids & diamonds" live in production · **Latest commit on `main`:** `b8d9b65`
+
+**At a glance:** 12 patterns in 4 levels · 254 automated tests · 17 site pages · mobile-first (320px → 4K) · no login, no backend
 
 | | |
 |---|---|
@@ -31,8 +33,18 @@
 | 2026-10-28 | Social share previews (WhatsApp etc.), app icons and manifest, SEO, README screenshots | `adcb9a7` |
 | 2026-10-28 | Progress notes (this file) and image source files | `59c6f6d` |
 | 2026-10-28 | **Pyramids & diamonds**: 5 new patterns; engine supports two inner loops, sequential outer loops, arithmetic limits, comments | `0457d42` |
+| 2026-10-28 | Progress notes record the pyramids commit; deployed and verified live | `b8d9b65` |
 
 The user decided against a QR code; the link is shared directly.
+
+### Where we left off (handoff)
+
+- Everything above is committed, pushed and **live**. There are no open bugs and no uncommitted work.
+- The user has been reviewing the app locally and then asking for commit + push. **Always ask before pushing.**
+- Suggested next tasks, none started:
+  1. Refresh the README screenshots so they show a pyramid or diamond lesson (§ 9).
+  2. Optionally add the live URL to the GitHub repository's "About → Website" field. The user does this on GitHub.
+  3. Add more patterns from § 10. Hollow shapes first need `if-else` support in the engine.
 
 ---
 
@@ -42,8 +54,8 @@ The user decided against a QR code; the link is shared directly.
 
 | Route | Contents |
 |---|---|
-| `/` | Home page: hero, a live terminal replaying real engine steps, highlights, how it works, featured patterns, creator spotlight |
-| `/patterns` | Pattern library with category and difficulty filters and a "completed" badge |
+| `/` | Home page: hero, a live terminal replaying real engine steps, highlights, how it works, featured patterns (Star Triangle, Pyramid of Stars, Diamond), creator spotlight |
+| `/patterns` | Pattern library with category filters (Basic repetition, Increasing, Decreasing, Pyramids & diamonds), difficulty filters (Beginner, Easy, Moderate, Challenging) and a "completed" badge |
 | `/patterns/:id` | Lesson: objectives, expected output, explanations, settings, simulator, quiz, previous/next navigation. Supports `?rows=` and similar settings in the URL |
 | `/practice` | Every quiz question, filterable by question type, with local progress tracking and reset |
 | `/creator` | Faculty profile: photo, designation, colleges, focus areas, the idea behind the lab, Hi-Tech AI Solutions |
@@ -51,26 +63,26 @@ The user decided against a QR code; the link is shared directly.
 | `*` | Friendly "Page not found" page |
 
 **Simulator**
-- Synchronised panels: code highlight, variables (`i` and `j` show "not set yet" before initialisation), step explanation, output, and dry-run trace.
+- Synchronised panels: code highlight, variables, step explanation, output, and dry-run trace.
+  - Variables show "not set yet" before initialisation.
+  - Pyramids and the diamond show `i`, `j` and `k` side by side, each with a role label (outer loop · rows, spaces loop, stars loop).
+- When a limit is arithmetic, the explanation works it out first, e.g. `Check j <= 4 - i (here 4 - i = 1): 1 <= 1 is true…`.
+- "Symbols printed" counts only visible symbols, never spaces.
+- Comment lines in the code, such as the diamond's `// upper half`, are shown dimmed and never count as steps.
 - Controls: Next, Previous, Auto Run, Pause, Reset, End, four speeds and a progress bar. The ← and → keys also step.
 - On phones the dry-run trace becomes a stacked list.
 - Prediction mode asks students to guess the next real event before it runs.
 
-**Patterns (12):**
-- rectangle (rows, columns)
-- square (size)
-- repeated-row-number
-- star-triangle
-- number-triangle
-- inverted-triangle
-- inverted-number-triangle
-- star-pyramid
-- number-pyramid
-- odd-star-pyramid
-- inverted-pyramid
-- diamond (two outer loops; `rows` = upper-half height)
+**Patterns (12)**, by id and teaching order:
 
-Limits are 1–10, or 1–9 for the number patterns.
+| Level · category | Patterns |
+|---|---|
+| 1 · Basic repetition | `rectangle` (rows, columns) · `square` (size) · `repeated-row-number` |
+| 2 · Increasing patterns | `star-triangle` · `number-triangle` |
+| 3 · Decreasing patterns | `inverted-triangle` · `inverted-number-triangle` |
+| 4 · Pyramids & diamonds | `star-pyramid` · `number-pyramid` · `odd-star-pyramid` (`k <= 2 * i - 1`) · `inverted-pyramid` · `diamond` (two outer loops; `rows` = upper-half height, total 2 × rows − 1 rows) |
+
+Limits are 1–10, or 1–9 for the number patterns and the diamond. There are **40 quiz questions**: 36 across the lessons (2–4 each) and 4 general nested-loop questions. All of them appear in `/practice`, and 20 of the answers are re-checked against the simulator by the tests.
 
 **Design:**
 - A dark "space lab" theme: glass panels, neon cyan, violet and pink, and an animated grid-and-glow background.
@@ -81,7 +93,7 @@ Limits are 1–10, or 1–9 for the number patterns.
 **Responsive:**
 - Mobile-first from 320px phones up to 2560px+ displays; the root font size scales up at 1536, 1920 and 2560px.
 - Custom breakpoints: `xs` = 360px, `3xl` = 1920px.
-- Verified with no horizontal overflow on 8 pages × 7 widths, both locally and live.
+- Verified with no horizontal overflow on all 17 pages at 320, 375, 768, 1440 and 2560px, including 10-row pyramids and a 9-row diamond.
 
 **Sharing and SEO:**
 - Open Graph and Twitter tags in `index.html`.
@@ -185,7 +197,10 @@ npm run build      # → dist/
 npm run preview    # serve dist on http://localhost:4173
 ```
 
-On Windows, a dev server started from a script can leave the Vite process running after the shell stops. If so, find the `node.exe` whose command line contains this project's path and end it. Other `node.exe` processes, such as the Google Stitch `mcp-remote` connector, are unrelated; leave them alone.
+**Windows gotchas:**
+- A dev server started from a script can leave the Vite process running after the shell stops. If so, find the `node.exe` whose command line contains this project's path and end it. Other `node.exe` processes, such as the Google Stitch `mcp-remote` connector, are unrelated; leave them alone.
+- If a script edits the same file twice within a few milliseconds, the Vite dev server can miss the second edit and keep serving an old copy. The page then breaks in the browser while tests and the build pass. Fix it by touching the file (or restarting `npm run dev`). This never affects production.
+- Python scripts that write files on Windows produce CRLF line endings. `.gitattributes` turns them back into LF on commit, so this is harmless.
 
 ---
 
@@ -198,12 +213,23 @@ On Windows, a dev server started from a script can leave the Vite process runnin
   - Quiz: answers recomputed by the engine.
   - UI: all 53 steps forward and back, Auto Run, Pause, Reset, settings, prediction mode, quiz, navigation, mobile menu and tabs, creator page.
   - Metadata: share tags, image under 300 KB, icons, sitemap.
-- **Mutation check:** deliberately breaking inner-loop re-initialisation fails 18 engine tests.
-- **Live checks (2026-10-28):**
-  - All routes and deep links return 200.
-  - The live bundle hash matched the build of the deployed commit.
-  - No console errors or warnings.
-  - No horizontal overflow at 320–2560px.
+- **Mutation checks** (to prove the tests catch real bugs):
+  - Deliberately breaking inner-loop re-initialisation fails 18 tests.
+  - Making `-` compute `+` fails 22 tests.
+- **Live checks (2026-10-28, after `0457d42`):**
+  - All 17 routes and deep links return 200.
+  - The live bundle hash matched the local build of the deployed commit.
+  - The library shows 12 patterns.
+  - Every new lesson runs to its last step with the correct output:
+
+    | Lesson | Steps |
+    |---|---|
+    | Pyramid of Stars | 79 |
+    | Number Pyramid | 79 |
+    | Solid Pyramid (Odd Stars) | 97 |
+    | Inverted Pyramid | 79 |
+    | Diamond (7 rows) | 138 |
+  - No console errors and no horizontal overflow.
   - WhatsApp, Facebook and Telegram crawlers receive the Open Graph tags and image.
 
 ---
@@ -216,7 +242,7 @@ The sources are in `docs/assets-src/`:
 |---|---|---|
 | `og-card.html` | `public/og-image.jpg` | Render at 1200×630 with headless Chrome (example below), then save as JPEG, quality about 86, **under 300 KB** |
 | `icon.html` | `public/icon-512.png` | Render at 512×512, then downscale with Pillow to `icon-192.png` and `apple-touch-icon.png` (180). Headless Chrome has a minimum window width, so small direct renders come out cropped |
-| `shoot-screenshots.mjs` | `docs/screenshots/*.png` | `node docs/assets-src/shoot-screenshots.mjs <outDir> https://c-programming-pattern-lab.vercel.app` drives headless Chrome over the DevTools protocol. Convert the results to WebP for the README |
+| `shoot-screenshots.mjs` | `docs/screenshots/*.png` | `node docs/assets-src/shoot-screenshots.mjs <outDir> https://c-programming-pattern-lab.vercel.app` drives headless Chrome over the DevTools protocol. Convert the results to WebP for the README. **Note:** the current README screenshots (taken at `adcb9a7`) were made before the pyramids existed. They are still accurate but show only triangle lessons; to include one, add a pyramid or diamond shot to the script |
 
 Example render command (PowerShell, separate profile so the user's Chrome is untouched):
 
