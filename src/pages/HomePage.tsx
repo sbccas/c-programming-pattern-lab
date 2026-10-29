@@ -4,6 +4,7 @@ import { CreatorAvatar } from '../components/CreatorAvatar';
 import { GithubIcon } from '../components/GithubIcon';
 import { LiveDemo } from '../components/LiveDemo';
 import { PatternCard } from '../components/PatternCard';
+import { VisitorCounter } from '../components/VisitorCounter';
 import { CREATOR, ORGANISATION } from '../branding';
 import { FEATURED_PATTERN_IDS, PATTERNS, getPattern } from '../patterns';
 import { useCompletedPatterns } from '../utils/progress';
@@ -30,7 +31,7 @@ const STEPS = [
 const HIGHLIGHTS = [
   { icon: Cpu, title: `${PATTERNS.length} verified patterns`, text: 'From rectangles and triangles to pyramids and diamonds.' },
   { icon: Zap, title: 'Every step is real', text: 'Each highlight comes from an actual execution event.' },
-  { icon: ShieldCheck, title: 'No login needed', text: 'Runs in your browser. Nothing is uploaded.' },
+  { icon: ShieldCheck, title: 'No login needed', text: 'Runs in your browser. No personal data is collected.' },
 ];
 
 export function HomePage() {
@@ -67,11 +68,14 @@ export function HomePage() {
               Browse all {PATTERNS.length} patterns
             </Link>
           </div>
-          <p className="mt-6 flex max-w-xl items-start gap-2 text-sm text-slate-400">
+          <div className="mt-5">
+            <VisitorCounter />
+          </div>
+          <p className="mt-5 flex max-w-xl items-start gap-2 text-sm text-slate-400">
             <ShieldCheck aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-lime-300" />
             <span>
               The lab simulates a set of verified example programs. It does not compile or run C code that you type. No
-              login is needed and nothing is sent to a server.
+              login is needed and no personal information is collected.
             </span>
           </p>
         </div>

@@ -26,4 +26,9 @@ export default tseslint.config(
       'no-implied-eval': 'error',
     },
   },
+  {
+    // Vercel Functions and their tests run in Node.js.
+    files: ['api/**/*.ts', 'tests/**/*.ts'],
+    languageOptions: { globals: globals.node },
+  },
 );

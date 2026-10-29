@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CREATOR, ORGANISATION } from '../branding';
 import { BrandMark } from './BrandMark';
 import { GithubIcon } from './GithubIcon';
+import { VisitorCounter } from './VisitorCounter';
 
 export function AppFooter() {
   return (
@@ -14,11 +15,14 @@ export function AppFooter() {
             <p className="font-display text-lg font-bold text-white">C Programming Pattern Lab</p>
           </div>
           <p className="mt-3 max-w-md text-sm text-slate-400">
-            See the code. Follow the loop. Understand the pattern. Runs entirely in your browser — no login, no tracking.{' '}
+            See the code. Follow the loop. Understand the pattern. Runs in your browser — no login, no cookies, no personal data.{' '}
             <Link to="/about" className="font-semibold text-cyan-300 underline-offset-4 hover:underline">
               About &amp; limitations
             </Link>
           </p>
+          <div className="mt-3">
+            <VisitorCounter variant="inline" />
+          </div>
         </div>
 
         <div className="glass p-5">

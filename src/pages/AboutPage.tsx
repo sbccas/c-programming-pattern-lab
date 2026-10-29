@@ -109,11 +109,24 @@ export function AboutPage() {
           Privacy
         </h2>
         <p className="mt-2 text-slate-300">
-          No login, no personal information, no analytics and no tracking. Everything runs in your browser. Your settings
-          (speed, display options) and progress (completed simulations and correctly answered questions) are saved only in
-          this browser’s local storage. Clearing your browser data removes them, and they do not move to other devices. You
-          can reset progress from the <Link to="/practice" className="font-semibold text-cyan-300 underline">Practice zone</Link>.
+          No login and no personal information. The simulator runs entirely in your browser. Your settings (speed, display
+          options) and progress (completed simulations and correctly answered questions) are saved only in this browser’s
+          local storage. Clearing your browser data removes them, and they do not move to other devices. You can reset
+          progress from the <Link to="/practice" className="font-semibold text-cyan-300 underline">Practice zone</Link>.
         </p>
+        <h3 className="mt-4 font-semibold text-white">Visitor counting</h3>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-slate-300">
+          <li>
+            <strong className="text-white">Public counter</strong> (“students · visits”): the site stores only two running
+            totals. Your browser remembers in its own storage that it has already been counted (once per device, and one visit
+            per browsing session). No cookies, names, IP addresses or other details are stored.
+          </li>
+          <li>
+            <strong className="text-white">Vercel Web Analytics</strong>: anonymous, cookie-free page-view statistics (for
+            example, which lessons are popular and whether visitors use phones or laptops). These are visible only to the site
+            owner.
+          </li>
+        </ul>
       </section>
 
       <section className="mt-8" aria-labelledby="a11y-title">

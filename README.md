@@ -62,7 +62,12 @@ The full specification is in [`C_Programming_Pattern_Lab_PRD.md`](C_Programming_
 
   Verified with no horizontal overflow at 320, 375, 414, 768, 1024, 1440 and 2560px.
 - Keyboard accessible, screen-reader labels, and `prefers-reduced-motion` support.
-- No login, no backend, no analytics. Preferences and progress live only in `localStorage`.
+- No login and no personal data. Preferences and progress live only in `localStorage`.
+- **Visitor counting** (privacy-friendly, no cookies):
+  - a public **live counter** on the home page and in the footer ("812 students · 3,940 visits") from one tiny serverless function, [`api/counter.ts`](api/counter.ts), that stores only two totals in Upstash Redis;
+  - **Vercel Web Analytics** for the site owner's private dashboard.
+
+  See [Visitor counter & analytics](#visitor-counter--analytics).
 
 ## Patterns
 
@@ -179,7 +184,7 @@ Then open http://localhost:5173.
 
 ### Tests
 
-254 automated tests:
+269 automated tests:
 
 - **Engine:**
   - the exact PRD first-row event sequence, inner re-initialisation on every row, and the outer update only after the inner loop and the newline;
@@ -191,12 +196,15 @@ Then open http://localhost:5173.
 - **Patterns:** each pattern's engine output equals its hand-written expected output exactly. Every event points at real code on the stated line. PRD C sources match character for character.
 - **Quiz:** answers to output, row and count questions are recomputed with the simulator.
 - **UI:** stepping through all 53 steps forward and back, checking code highlight, variables, output, progress and dry-run row against the engine at each step. Also: Auto Run, Pause, Reset and speed (fake timers), timer cleanup on unmount, settings changes and validation, URL settings, prediction mode, quiz feedback, library filters, navigation, 404, and mobile panel tabs.
+- **Visitor counter:**
+  - the `/api/counter` function, tested against a fake Redis: the exact commands sent, the "not configured" fallback, both variable-name styles, and error handling;
+  - the browser side: hidden on failure, only reads off production, counts a device once and a visit once per session, one request per page load.
 
 ---
 
 ## Deploying: GitHub → Vercel
 
-The app is a static Vite build. It needs no environment variables, secrets or backend.
+The app is a static Vite build plus one small Vercel Function (`api/counter.ts`, the visitor counter). The only environment variables are the Redis credentials that the Upstash integration adds automatically, and the site works without them: the counter just stays hidden.
 
 ### 1. Put the code on GitHub
 
@@ -237,7 +245,7 @@ The app is a static Vite build. It needs no environment variables, secrets or ba
 3. Click **Deploy**.
 4. Production branch: `main` (Project → Settings → Git). Every push to another branch, and every pull request, gets its own **preview deployment** URL.
 
-`vercel.json` rewrites every path to `index.html`, so links such as `/patterns/star-triangle?rows=6` work when opened directly or refreshed.
+`vercel.json` rewrites every path except `/api/…` to `index.html`, so links such as `/patterns/star-triangle?rows=6` work when opened directly or refreshed, and `/api/counter` still reaches the function.
 
 ### 3. Verify the live site
 
@@ -250,6 +258,34 @@ The app is a static Vite build. It needs no environment variables, secrets or ba
 - [ ] Vercel → Deployments shows the commit SHA you pushed.
 
 ---
+
+## Visitor counter & analytics
+
+There are two parts. Each is switched on once in the Vercel dashboard (Project → **c-programming-pattern-lab**).
+
+**1. Vercel Web Analytics** (private dashboard: visitors, top pages, devices, countries)
+- Open the **Analytics** tab, then **Enable**.
+- The `<Analytics />` component (`@vercel/analytics`) is already in `src/app/App.tsx`.
+- It is cookie-free, and only the project owner can see the data.
+
+**2. Public live counter** ("students · visits" on the site)
+1. Open the **Storage** tab (or **Marketplace**), choose **Upstash for Redis**, then **Create** with the free plan.
+2. Connect the database to this project for **Production** and **Preview**.
+3. This adds `KV_REST_API_URL`, `KV_REST_API_TOKEN` and `KV_REST_API_READ_ONLY_TOKEN` (plus `KV_URL` and `REDIS_URL`, which are not used). Reading the totals uses the read-only token; only counting uses the full token. The `UPSTASH_REDIS_REST_*` names also work.
+4. **Redeploy** (Deployments → latest → Redeploy) so the function receives the variables.
+5. Check that `https://c-programming-pattern-lab.vercel.app/api/counter` returns `{"configured":true,…}`.
+
+**How counting works:**
+
+| Rule | Detail |
+|---|---|
+| Students | Each browser is counted once ever, remembered in `localStorage` as `c-pattern-lab:device-counted`. |
+| Visits | Counted once per browsing session (`sessionStorage`). |
+| Where it counts | Only on the production address (`PRODUCTION_HOST` in `src/utils/visitorStats.ts`). Preview deployments, `localhost` and automated browsers only *read* the totals. |
+| What is stored | Exactly two integers, `cpl:visits` and `cpl:devices`. No cookies, IP addresses, names or user agents. |
+| Failures | If the database isn't connected or a request fails, the counter is simply hidden. |
+
+The numbers are a friendly approximation, and anyone determined could inflate them. Use the Analytics dashboard for reliable statistics. If you add a custom domain later, update `PRODUCTION_HOST`.
 
 ## Limitations (Version 1)
 

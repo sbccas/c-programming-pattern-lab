@@ -5,7 +5,7 @@
 
 **Last updated:** 2026-10-28 · **Status:** ✅ Version 1 + "Pyramids & diamonds" live in production · **Latest commit on `main`:** `b8d9b65`
 
-**At a glance:** 12 patterns in 4 levels · 254 automated tests · 17 site pages · mobile-first (320px → 4K) · no login, no backend
+**At a glance:** 12 patterns in 4 levels · 269 automated tests · 17 site pages · mobile-first (320px → 4K) · no login · one tiny serverless function (visitor counter)
 
 | | |
 |---|---|
@@ -34,6 +34,8 @@
 | 2026-10-28 | Progress notes (this file) and image source files | `59c6f6d` |
 | 2026-10-28 | **Pyramids & diamonds**: 5 new patterns; engine supports two inner loops, sequential outer loops, arithmetic limits, comments | `0457d42` |
 | 2026-10-28 | Progress notes record the pyramids commit; deployed and verified live | `b8d9b65` |
+| 2026-10-28 | README screenshots show pyramids and the diamond; home highlight text fixed | `1fbc6f0` |
+| 2026-10-29 | **Visitor counter**: public "students · visits" counter (`api/counter.ts` + Upstash Redis) and Vercel Web Analytics; privacy text updated | *(this commit)* |
 
 The user decided against a QR code; the link is shared directly.
 
@@ -41,7 +43,8 @@ The user decided against a QR code; the link is shared directly.
 
 - Everything above is committed, pushed and **live**. There are no open bugs and no uncommitted work.
 - The user has been reviewing the app locally and then asking for commit + push. **Always ask before pushing.**
-- Suggested next tasks, none started:
+- **Open action for the user (Vercel dashboard):** enable **Web Analytics**, and add **Upstash for Redis** (free) connected to the project, then redeploy. Until then the public counter stays hidden; the code is deployed and safe either way.
+- Suggested next tasks:
   1. ~~Refresh the README screenshots to show a pyramid or diamond~~ ✅ done: the diamond, the solid pyramid on a phone, and the library filtered to pyramids.
   2. Optionally add the live URL to the GitHub repository's "About → Website" field. The user does this on GitHub.
   3. Add more patterns from § 10. Hollow shapes first need `if-else` support in the engine.
@@ -95,6 +98,17 @@ Limits are 1–10, or 1–9 for the number patterns and the diamond. There are *
 - Custom breakpoints: `xs` = 360px, `3xl` = 1920px.
 - Verified with no horizontal overflow on all 17 pages at 320, 375, 768, 1440 and 2560px, including 10-row pyramids and a 9-row diamond.
 
+**Visitor counting** (added 2026-10-29):
+
+| Part | Details |
+|---|---|
+| Public counter | "812 students · 3,940 visits", shown as a pill in the home hero and as a line in the footer. `src/components/VisitorCounter.tsx` and `src/utils/visitorStats.ts` |
+| Server | `api/counter.ts`, a Vercel Function. `GET` reads, `POST {newDevice}` counts. It stores only `cpl:visits` and `cpl:devices` in Upstash Redis through the REST pipeline |
+| Counting rules | A device once ever (`localStorage`), a visit once per session (`sessionStorage`). Only on `PRODUCTION_HOST` and never in automated browsers, so previews, localhost and screenshot scripts don't inflate it |
+| Failure behaviour | Hidden when the database is not connected (`configured: false`) or a request fails |
+| Private dashboard | Vercel Web Analytics |
+| Privacy text | Updated on Home, the footer and About ("Visitor counting") |
+
 **Sharing and SEO:**
 - Open Graph and Twitter tags in `index.html`.
 - `public/og-image.jpg`: 1200×630, about 90 KB.
@@ -141,7 +155,8 @@ Pattern definition (structured program, src/patterns/*.ts)
 |---|---|---|
 | Node.js | **24.22.1 LTS** (npm 11.19) | `package.json` engines: `>=22.12` |
 | React | 19.3 | |
-| React Router | 7.18 | `BrowserRouter`; `vercel.json` rewrites every path to `index.html` |
+| React Router | 7.18 | `BrowserRouter`; `vercel.json` rewrites every path except `/api/…` to `index.html` |
+| @vercel/analytics | 2.0 | `<Analytics />` in `src/app/App.tsx` |
 | Vite | 8.3 | |
 | Tailwind CSS | 4.3 | Via `@tailwindcss/vite`. Use `@utility`, not `@layer components`, for anything you want to `@apply` |
 | TypeScript | **6.0** (strict) | **Not 7**: typescript-eslint supports TypeScript below 6.1 only |
@@ -182,7 +197,10 @@ Facts about the creator come from the public GitHub profile and website, plus de
   3. Commit and push.
   4. Vercel deploys in about 20 seconds.
   5. Verify the live site, and report the commit SHA and URL.
-- **Vercel settings:** framework Vite, build `npm run build`, output `dist`, no environment variables, Node 24.x.
+- **Vercel settings:** framework Vite, build `npm run build`, output `dist`, Node 24.x.
+  - The only environment variables are the Upstash Redis ones (`KV_REST_API_URL`, `KV_REST_API_TOKEN`), added by the Marketplace integration.
+  - **Web Analytics** must be enabled in the Analytics tab.
+  - Setup steps are in README → "Visitor counter & analytics".
 
 ---
 
@@ -191,7 +209,7 @@ Facts about the creator come from the public GitHub profile and website, plus de
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 254 tests
+npm test           # 269 tests
 npm run lint
 npm run build      # → dist/
 npm run preview    # serve dist on http://localhost:4173
@@ -206,7 +224,7 @@ npm run preview    # serve dist on http://localhost:4173
 
 ## 8. Verification status
 
-- **Tests:** 254 passing across 6 files.
+- **Tests:** 269 passing across 8 files (including the counter API against a fake Redis, and the client counting rules).
   - Independent control-flow oracle: for every pattern at every allowed setting, the code part that runs after each step must match the one C would run, worked out from the program structure.
   - Engine: exact PRD first-row sequence, loop order for every pattern at every allowed setting, snapshot replay forwards and backwards.
   - Patterns: PRD C source matched character for character; expected outputs.
