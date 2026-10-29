@@ -184,7 +184,7 @@ Then open http://localhost:5173.
 
 ### Tests
 
-269 automated tests:
+270 automated tests:
 
 - **Engine:**
   - the exact PRD first-row event sequence, inner re-initialisation on every row, and the outer update only after the inner loop and the newline;

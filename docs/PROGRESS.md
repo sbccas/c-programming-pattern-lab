@@ -3,16 +3,18 @@
 > Status file for future work sessions (Claude Code, ChatGPT, or a person).
 > Read this first, then `README.md` and `C_Programming_Pattern_Lab_PRD.md`.
 
-**Last updated:** 2026-10-28 · **Status:** ✅ Version 1 + "Pyramids & diamonds" live in production · **Latest commit on `main`:** `b8d9b65`
+**Last updated:** 2026-10-29 · **Status:** ✅ Live in production: Version 1, "Pyramids & diamonds" and the visitor counter · **Latest feature commit:** `b5b4b6a`
 
-**At a glance:** 12 patterns in 4 levels · 269 automated tests · 17 site pages · mobile-first (320px → 4K) · no login · one tiny serverless function (visitor counter)
+**At a glance:** 12 patterns in 4 levels · 270 automated tests · 17 site pages · mobile-first (320px → 4K) · no login · live visitor counter + Vercel Web Analytics
 
 | | |
 |---|---|
 | **Live app** | https://c-programming-pattern-lab.vercel.app/ |
 | **Repository** | https://github.com/sbccas/c-programming-pattern-lab (public, branch `main`) |
 | **Local folder** | `D:\Future Projects\c-programming-pattern-lab` |
-| **Hosting** | Vercel, auto-deploys every push to `main`; other branches get preview URLs |
+| **Hosting** | Vercel (team `sbccasamroli-3241s-projects`, Hobby plan), auto-deploys every push to `main`; other branches get preview URLs |
+| **Counter API** | https://c-programming-pattern-lab.vercel.app/api/counter (read-only `GET` returns `{configured, visits, devices}`) |
+| **Owner dashboards** | Vercel → project → **Analytics** (visitors, pages, devices, countries) · **Storage** (Upstash Redis database) |
 | **Specification** | [`C_Programming_Pattern_Lab_PRD.md`](../C_Programming_Pattern_Lab_PRD.md) |
 | **Creator** | Hitesh Patel, Assistant Professor & Coordinator, BSc Data Science · Hi-Tech AI Solutions & Services |
 
@@ -35,15 +37,26 @@
 | 2026-10-28 | **Pyramids & diamonds**: 5 new patterns; engine supports two inner loops, sequential outer loops, arithmetic limits, comments | `0457d42` |
 | 2026-10-28 | Progress notes record the pyramids commit; deployed and verified live | `b8d9b65` |
 | 2026-10-28 | README screenshots show pyramids and the diamond; home highlight text fixed | `1fbc6f0` |
-| 2026-10-29 | **Visitor counter**: public "students · visits" counter (`api/counter.ts` + Upstash Redis) and Vercel Web Analytics; privacy text updated | *(this commit)* |
+| 2026-10-28 | Progress notes updated (pyramids release, handoff, verification) | `d51fb3f` |
+| 2026-10-29 | **Visitor counter**: public "students · visits" counter (`api/counter.ts` + Upstash Redis, read-only token for reads) and Vercel Web Analytics; privacy text updated | `b5b4b6a` |
+| 2026-10-29 | User enabled Web Analytics and connected Upstash for Redis (free); counter verified live with `configured: true`, starting at 0 / 0 | — |
 
 The user decided against a QR code; the link is shared directly.
 
 ### Where we left off (handoff)
 
-- Everything above is committed, pushed and **live**. There are no open bugs and no uncommitted work.
+- Everything above is committed, pushed and **live**. There are no open bugs and no uncommitted work (apart from this notes update, if it has not been pushed yet).
 - The user has been reviewing the app locally and then asking for commit + push. **Always ask before pushing.**
-- **Open action for the user (Vercel dashboard):** enable **Web Analytics**, and add **Upstash for Redis** (free) connected to the project, then redeploy. Until then the public counter stays hidden; the code is deployed and safe either way.
+- ~~Open action for the user: enable Web Analytics and connect Upstash for Redis~~ ✅ done on 2026-10-29.
+  - The database was created through Vercel → Storage → **Create Database** → Upstash for Redis (free plan).
+  - The "Connect Database" panel only lists *existing* databases.
+  - It added `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `KV_REST_API_READ_ONLY_TOKEN`, `KV_URL` and `REDIS_URL`. Only the first three are used.
+- **When checking the live site, do not inflate the counter:**
+  - use `curl …/api/counter` (`GET` only reads); or
+  - in a scripted browser, set `localStorage['c-pattern-lab:device-counted']='1'` and `sessionStorage['c-pattern-lab:visit-counted']='1'` before the app runs (CDP `Page.addScriptToEvaluateOnNewDocument`).
+
+  Automated browsers (`navigator.webdriver`) never count anyway.
+- **Never ask for or paste the Redis token values**; ask only for variable names.
 - Suggested next tasks:
   1. ~~Refresh the README screenshots to show a pyramid or diamond~~ ✅ done: the diamond, the solid pyramid on a phone, and the library filtered to pyramids.
   2. Optionally add the live URL to the GitHub repository's "About → Website" field. The user does this on GitHub.
@@ -145,6 +158,8 @@ Pattern definition (structured program, src/patterns/*.ts)
 | Quiz | `src/quiz/` (`types`, `questions`, `predictions`) |
 | UI | `src/components/`, `src/pages/`, `src/hooks/` (`useSimulation`, `useMediaQuery`), `src/app/` (routes, layout) |
 | Branding | **`src/branding.ts`**: creator and organisation details (edit here only) |
+| Visitor counter | `api/counter.ts` (Vercel Function, Upstash REST) · `src/utils/visitorStats.ts` (counting rules, `PRODUCTION_HOST`) · `src/components/VisitorCounter.tsx` (pill + footer line) · tests in `tests/counter-api.test.ts` and `src/__tests__/visitorCounter.test.tsx` |
+| Analytics | `<Analytics />` from `@vercel/analytics/react` in `src/app/App.tsx` |
 | Styles | `src/styles/index.css` (Tailwind v4 `@theme` tokens, `@utility` classes such as `glass`, `btn-primary`, `neon-text`) |
 
 ---
@@ -209,7 +224,7 @@ Facts about the creator come from the public GitHub profile and website, plus de
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # 269 tests
+npm test           # 270 tests
 npm run lint
 npm run build      # → dist/
 npm run preview    # serve dist on http://localhost:4173
@@ -224,7 +239,8 @@ npm run preview    # serve dist on http://localhost:4173
 
 ## 8. Verification status
 
-- **Tests:** 269 passing across 8 files (including the counter API against a fake Redis, and the client counting rules).
+- **Tests:** 270 passing across 8 files.
+  - Visitor counter: the API against a fake Redis (exact commands, the "not configured" fallback, both variable-name styles, the read-only token used for reads, error handling) and the client counting rules (production only, no automated browsers, once per device and once per session, one request per page load, hidden on failure).
   - Independent control-flow oracle: for every pattern at every allowed setting, the code part that runs after each step must match the one C would run, worked out from the program structure.
   - Engine: exact PRD first-row sequence, loop order for every pattern at every allowed setting, snapshot replay forwards and backwards.
   - Patterns: PRD C source matched character for character; expected outputs.
@@ -249,6 +265,12 @@ npm run preview    # serve dist on http://localhost:4173
     | Diamond (7 rows) | 138 |
   - No console errors and no horizontal overflow.
   - WhatsApp, Facebook and Telegram crawlers receive the Open Graph tags and image.
+- **Live checks (2026-10-29, after `b5b4b6a`):**
+  - The live bundle matched the local build.
+  - `GET /api/counter` returns `200 {"configured":true,"visits":0,"devices":0}` with `Cache-Control: no-store`.
+  - SPA routes still return 200 (the rewrite skips `/api/`).
+  - `/_vercel/insights/script.js` returns 200, so Analytics is enabled.
+  - A scripted read-only browser check showed "0 students · 0 visits" in the home pill and the footer, on desktop and phone. It made only two `GET` requests, and the totals stayed 0 / 0.
 
 ---
 
@@ -283,6 +305,13 @@ After changing the image, WhatsApp may keep showing the old cached preview. Shar
 - Settings are capped at 10.
 - Progress is stored in `localStorage` only.
 
+**Visitor counter limits:**
+- The public number is an approximation. A student using a phone and a laptop counts twice, clearing browser data counts again, and a determined person could inflate it.
+- Use the Vercel Analytics dashboard for reliable statistics.
+- The numbers refresh on each page load, not live on an open page.
+- The counter only counts on `PRODUCTION_HOST` (`src/utils/visitorStats.ts`). **Update it if a custom domain is added.**
+- Upstash free plan: if the limits are ever exceeded the requests fail, and the site just hides the counter.
+
 **Possible next steps (PRD "later versions" and expansion candidates):**
 - More patterns: alphabet triangle (`%c`), hollow square or hollow pyramid (needs `if-else` in the engine), Floyd's triangle, Pascal's triangle.
 - Pyramids, the inverted pyramid, the number pyramid and the diamond were added on 2026-10-28.
@@ -291,4 +320,5 @@ After changing the image, WhatsApp may keep showing the old cached preview. Shar
 - Gujarati language support.
 - Exportable lesson sheets.
 - A teacher dashboard and accounts (these need a privacy review first).
-- Optional: a custom domain on Vercel, and the live URL in the GitHub repo's "About → Website" field.
+- Optional: a custom domain on Vercel (then update `PRODUCTION_HOST`), and the live URL in the GitHub repo's "About → Website" field.
+- Optional counter ideas: show "visits today", or count per-lesson opens (more Redis keys; no personal data).
