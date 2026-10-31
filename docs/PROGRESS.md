@@ -3,7 +3,7 @@
 > Status file for future work sessions (Claude Code, ChatGPT, or a person).
 > Read this first, then `README.md` and `C_Programming_Pattern_Lab_PRD.md`.
 
-**Last updated:** 2026-10-29 · **Status:** ✅ Live in production: Version 1, "Pyramids & diamonds" and the visitor counter · **Latest feature commit:** `b5b4b6a`
+**Last updated:** 2026-10-31 · **Status:** ✅ Live in production: Version 1, "Pyramids & diamonds" and the visitor counter · **Latest feature commit:** `b5b4b6a`
 
 **At a glance:** 12 patterns in 4 levels · 270 automated tests · 17 site pages · mobile-first (320px → 4K) · no login · live visitor counter + Vercel Web Analytics
 
@@ -40,6 +40,7 @@
 | 2026-10-28 | Progress notes updated (pyramids release, handoff, verification) | `d51fb3f` |
 | 2026-10-29 | **Visitor counter**: public "students · visits" counter (`api/counter.ts` + Upstash Redis, read-only token for reads) and Vercel Web Analytics; privacy text updated | `b5b4b6a` |
 | 2026-10-29 | User enabled Web Analytics and connected Upstash for Redis (free); counter verified live with `configured: true`, starting at 0 / 0 | — |
+| 2026-10-31 | Tailwind scans only `src/` (`@import 'tailwindcss' source('..')`). Before, it also scanned README, `docs/` and the PRD, so docs edits changed the CSS. The 2 rules dropped (`flex-shrink`, `transform`) came only from the share-card HTML; 270 tests pass. The same fix was made in C Programming Array Lab | this commit |
 
 The user decided against a QR code; the link is shared directly.
 
@@ -234,6 +235,7 @@ npm run preview    # serve dist on http://localhost:4173
 - A dev server started from a script can leave the Vite process running after the shell stops. If so, find the `node.exe` whose command line contains this project's path and end it. Other `node.exe` processes, such as the Google Stitch `mcp-remote` connector, are unrelated; leave them alone.
 - If a script edits the same file twice within a few milliseconds, the Vite dev server can miss the second edit and keep serving an old copy. The page then breaks in the browser while tests and the build pass. Fix it by touching the file (or restarting `npm run dev`). This never affects production.
 - Python scripts that write files on Windows produce CRLF line endings. `.gitattributes` turns them back into LF on commit, so this is harmless.
+- Tailwind v4 scans every project file for class names unless `source()` limits it. Keep `source('..')` on the import in `src/styles/index.css`, so README and docs edits never change the site's CSS.
 
 ---
 
